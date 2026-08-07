@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-07T23:57:41",
+  "generated_at": "2026-08-07T23:34:29",
   "dates": [
     "2026-08-03",
     "2026-08-04",
@@ -83,6 +83,7 @@
               "node_index": 21,
               "days_since_anchor": 216,
               "days_since_prev": 5,
+              "kind": "bill",
               "prev_node": {
                 "node_index": 20,
                 "date": "2026-07-31",
@@ -104,6 +105,7 @@
               "node_index": 22,
               "days_since_anchor": 216,
               "days_since_prev": 0,
+              "kind": "bill",
               "prev_node": {
                 "node_index": 21,
                 "date": "2026-08-05",
@@ -111,6 +113,138 @@
               },
               "next_node": {
                 "node_index": 23,
+                "date": "2026-08-05",
+                "in_range": true
+              }
+            },
+            {
+              "date": "2026-08-05",
+              "bill_no": "202110228530000",
+              "bill_title": "「食品安全衛生管理法第七條及第四十七條條文修正草案」，請審議案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110228530000/details",
+              "status": "委員會審查",
+              "meeting_code": null,
+              "node_index": 23,
+              "days_since_anchor": 216,
+              "days_since_prev": 0,
+              "kind": "bill",
+              "prev_node": {
+                "node_index": 22,
+                "date": "2026-08-05",
+                "in_range": true
+              },
+              "next_node": {
+                "node_index": 24,
+                "date": "2026-08-05",
+                "in_range": true
+              }
+            },
+            {
+              "date": "2026-08-05",
+              "bill_no": "202110229110000",
+              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110229110000/details",
+              "status": "委員會審查",
+              "meeting_code": null,
+              "node_index": 24,
+              "days_since_anchor": 216,
+              "days_since_prev": 0,
+              "kind": "bill",
+              "prev_node": {
+                "node_index": 23,
+                "date": "2026-08-05",
+                "in_range": true
+              },
+              "next_node": {
+                "node_index": 25,
+                "date": "2026-08-05",
+                "in_range": true
+              }
+            },
+            {
+              "date": "2026-08-05",
+              "bill_no": "202110228940000",
+              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110228940000/details",
+              "status": "委員會審查",
+              "meeting_code": null,
+              "node_index": 25,
+              "days_since_anchor": 216,
+              "days_since_prev": 0,
+              "kind": "bill",
+              "prev_node": {
+                "node_index": 24,
+                "date": "2026-08-05",
+                "in_range": true
+              },
+              "next_node": {
+                "node_index": 26,
+                "date": "2026-08-05",
+                "in_range": true
+              }
+            },
+            {
+              "date": "2026-08-05",
+              "bill_no": "202110229060000",
+              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110229060000/details",
+              "status": "委員會審查",
+              "meeting_code": null,
+              "node_index": 26,
+              "days_since_anchor": 216,
+              "days_since_prev": 0,
+              "kind": "bill",
+              "prev_node": {
+                "node_index": 25,
+                "date": "2026-08-05",
+                "in_range": true
+              },
+              "next_node": {
+                "node_index": 27,
+                "date": "2026-08-05",
+                "in_range": true
+              }
+            },
+            {
+              "date": "2026-08-05",
+              "bill_no": "202110229240000",
+              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110229240000/details",
+              "status": "委員會審查",
+              "meeting_code": null,
+              "node_index": 27,
+              "days_since_anchor": 216,
+              "days_since_prev": 0,
+              "kind": "bill",
+              "prev_node": {
+                "node_index": 26,
+                "date": "2026-08-05",
+                "in_range": true
+              },
+              "next_node": {
+                "node_index": 28,
+                "date": "2026-08-05",
+                "in_range": true
+              }
+            },
+            {
+              "date": "2026-08-05",
+              "bill_no": "202110229070000",
+              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110229070000/details",
+              "status": "委員會審查",
+              "meeting_code": null,
+              "node_index": 28,
+              "days_since_anchor": 216,
+              "days_since_prev": 0,
+              "kind": "bill",
+              "prev_node": {
+                "node_index": 27,
+                "date": "2026-08-05",
+                "in_range": true
+              },
+              "next_node": {
+                "node_index": 29,
                 "date": "2026-08-07",
                 "in_range": true
               }
@@ -132,11 +266,12 @@
               "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110228820000/details",
               "status": "排入院會",
               "meeting_code": null,
-              "node_index": 23,
+              "node_index": 29,
               "days_since_anchor": 218,
               "days_since_prev": 2,
+              "kind": "bill",
               "prev_node": {
-                "node_index": 22,
+                "node_index": 28,
                 "date": "2026-08-05",
                 "in_range": true
               },

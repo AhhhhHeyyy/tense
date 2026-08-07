@@ -1,0 +1,91 @@
+{
+  "meeting_code": "聯席會議-11-5-20,35-1",
+  "meeting_title": "第11屆第5會期財政、外交及國防委員會第1次聯席會議",
+  "committees": [
+    "財政委員會",
+    "外交及國防委員會"
+  ],
+  "dates": [
+    "2026-05-25",
+    "2026-05-27",
+    "2026-05-28"
+  ],
+  "sessions": [
+    {
+      "date": "2026-05-25",
+      "time_range": "115/05/25 09:00-17:30",
+      "location": "群賢樓9樓大禮堂",
+      "agenda": "審查行政院函請審議「115年度中央政府保衛國家安全及強化不對稱戰力計畫採購特別預算案」案。(詢答及處理)【5月25日、5月27日及5月28日三天一次會】【預算提案截止時間：5月25日(星期一)下午4時】",
+      "convener": "李彥秀委員",
+      "ppg_url": "https://ppg.ly.gov.tw/ppg/sittings/2026052191/details?meetingDate=115/05/25",
+      "attachments": [
+        {
+          "title": "1150525不對稱戰力特別預算-主計長報告",
+          "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/00320907613253202002.pdf",
+          "format": "pdf"
+        },
+        {
+          "title": "1150525財政部報告",
+          "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/16228806221050004002.pdf",
+          "format": "pdf"
+        },
+        {
+          "title": "國防部特別預算報告",
+          "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/3201422201260500002.pdf",
+          "format": "pdf"
+        },
+        {
+          "title": "財政部115年5月27日台財庫字第11503673150號函",
+          "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/65226011320020004002.pdf",
+          "format": "pdf"
+        },
+        {
+          "title": "財政部115年5月29日台財庫字第11503673570號函",
+          "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/00220400261026105003.pdf",
+          "format": "pdf"
+        },
+        {
+          "title": "財政部115年5月29日台財庫字第11503674800號函",
+          "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/02001224080520661004.pdf",
+          "format": "pdf"
+        },
+        {
+          "title": "會議影片",
+          "url": "https://ivod.ly.gov.tw/Demand/Meetvod?Meet=00851854334650386450",
+          "format": "video"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-27",
+      "time_range": "115/05/27 09:00-18:00",
+      "location": "群賢樓9樓大禮堂",
+      "agenda": "審查行政院函請審議「115年度中央政府保衛國家安全及強化不對稱戰力計畫採購特別預算案」案。(詢答及處理)【5月25日、5月27日及5月28日三天一次會】【預算提案截止時間：5月25日(星期一)下午4時】",
+      "convener": "吳秉叡委員",
+      "ppg_url": "https://ppg.ly.gov.tw/ppg/sittings/2026052193/details?meetingDate=115/05/27",
+      "attachments": [
+        {
+          "title": "會議影片",
+          "url": "https://ivod.ly.gov.tw/Demand/Meetvod?Meet=00799454607883161830",
+          "format": "video"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-28",
+      "time_range": "115/05/28 09:00-17:30",
+      "location": "群賢樓9樓大禮堂",
+      "agenda": "審查行政院函請審議「115年度中央政府保衛國家安全及強化不對稱戰力計畫採購特別預算案」案。(處理)【5月25日27日及28日三天一次會】 【預算提案截止時間：5月25日（一）下午4時】",
+      "convener": "吳秉叡委員",
+      "ppg_url": "https://ppg.ly.gov.tw/ppg/sittings/2026052189/details?meetingDate=115/05/28",
+      "attachments": [
+        {
+          "title": "會議影片",
+          "url": "https://ivod.ly.gov.tw/Demand/Meetvod?Meet=00215343219865202031",
+          "format": "video"
+        }
+      ]
+    }
+  ],
+  "gazette_url": "https://ppg.ly.gov.tw/ppg/sittings/2026052189/details?meetingDate=115/05/28"
+}

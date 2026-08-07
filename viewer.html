@@ -50,6 +50,7 @@
   .meta b{font-weight:700}
   .src{font-size:11px;margin-top:6px}
   .src a{color:var(--navy)}
+  .anchor{font-size:10.5px;color:var(--muted);border-top:1px dotted var(--line);padding-top:4px;line-height:1.5}
   .navrow{display:flex;justify-content:space-between;gap:6px;margin-top:7px;padding-top:6px;border-top:1px dotted var(--line)}
   .navbtn{font-size:10.5px;border:1px solid var(--navy);color:var(--navy);background:var(--paper);
     border-radius:5px;padding:3px 7px;cursor:pointer;font-family:inherit}
@@ -81,6 +82,7 @@
   <h1>時態計畫 Tense · 日期主視圖（真實資料 v1）</h1>
   <p class="sub" id="subtitle">載入中…</p>
   <div id="statusBox"></div>
+  <p class="sub">兩份示範資料：<a href="viewer.html">這週即時資料</a>　│　<a href="viewer.html?data=data/events_military_budget.json">軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）</a></p>
 
   <div class="legend">
     <div class="lg"><span class="swatch sw-hit"></span>當日有節點</div>
@@ -98,7 +100,8 @@
       <li><b>搜尋次數改用維基百科瀏覽量頂替 Google Trends</b>：Google Trends 沒有官方公開 API，非官方介面（裸 request、pytrends 函式庫）兩種方式實測都被 429 擋掉。維基百科瀏覽量量的是主題頁面長期關注度，不是當天新聞搜尋量，關聯度較弱，已在格子裡標注⚠。</li>
       <li><b>「點閱率」列先併進「搜尋次數」，沒有另外開一列</b>：兩者本質都是「公眾關注度」的代理指標，在 Cofacts 被 HF gated dataset 鎖住、搜尋次數又只有 Wikipedia 弱訊號的階段，開兩列各放一個缺口只會讓人以為在講兩件不同的事。等 Cofacts token 到手，再決定併回這列還是重新拆開。</li>
       <li><b>媒體報導列目前固定是缺口</b>：還沒有結構化來源可信任。格狀資料結構已經留好位置，接上真資料時不用改這個檔案。</li>
-      <li><b>立法列示範用的是食品安全衛生管理法修法線</b>，不是共筆裡舉例的軍購特別預算案——因為 LYAPI 清單端點的查詢篩選目前實測是壞的，還沒能直接用關鍵字/提案編號查到那個特定案子的議案編號，需要先手動去 ppg.ly.gov.tw 查一次起點編號。</li>
+      <li><b>這週即時資料示範用的是食品安全衛生管理法修法線</b>，不是共筆裡舉例的軍購特別預算案——因為 LYAPI 清單端點的查詢篩選目前實測是壞的，還沒能直接用關鍵字/提案編號查到那個特定案子的議案編號。</li>
+      <li><b>軍購案改用「委員會聯席會議」當結構化錨點，一樣自動化</b>：議案編號查不到，但聯席會議代碼本身、財政部/國防部/主計總處回覆的公文都結構化掛在同一場會議底下，一樣是規則決定不是人工判斷。見上方另一份示範資料——三天會期、天數計算、各部會附件全部自動抓，沒有手動輸入任何一筆。</li>
       <li><b>立法節點加了兩種連結導引</b>：① 每個節點卡片點得進 LYAPI 議案頁面原始連結；② 卡片下方「◀上一步／下一步▶」可以跳到同一條線的鄰近節點——如果鄰近節點不在目前顯示的日期範圍內，按鈕會變灰並標出它實際的日期，不會假裝跳得過去。</li>
     </ul>
   </div>
@@ -159,6 +162,20 @@ function renderSearchNode(cell){
   </div>`;
 }
 
+function renderMeetingNode(node){
+  const anchorStr = node.days_since_anchor===undefined ? "" :
+    ` · 已歷時 <b>${node.days_since_anchor}</b> 天`;
+  const attachmentLines = node.attachments.map(a =>
+    `<div class="src">→ <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a></div>`
+  ).join("");
+  return `<div class="node">
+    <div class="ttl">${node.meeting_title}<br><span style="font-weight:400">第 ${node.session_index}／${node.session_count} 天會期</span></div>
+    <div class="meta">◷ ${node.committees.join("、")} 聯席審查${anchorStr}</div>
+    <div class="anchor" style="margin-bottom:5px">${node.agenda}</div>
+    ${attachmentLines || '<div class="src" style="color:var(--muted)">本日無附件（僅排審，無新增文件）</div>'}
+  </div>`;
+}
+
 function renderAdminRecord(rec){
   const link = rec.url ? `<div class="src">→ <a href="${rec.url}" target="_blank" rel="noopener">${rec.gazette_id || "原文"}</a></div>` : "";
   return `<div class="node">
@@ -174,7 +191,8 @@ function renderCell(row, cell){
       return `<div class="cell">${cell.records.map(renderAdminRecord).join("")}</div>`;
     }
     if (row === "立法"){
-      return `<div class="cell">${cell.nodes.map(renderLegislativeNode).join("")}</div>`;
+      const html = cell.nodes.map(n => n.kind === "meeting" ? renderMeetingNode(n) : renderLegislativeNode(n)).join("");
+      return `<div class="cell">${html}</div>`;
     }
     if (row === "搜尋次數"){
       return `<div class="cell">${renderSearchNode(cell)}</div>`;
@@ -189,19 +207,21 @@ function renderCell(row, cell){
 
 async function main(){
   const statusBox = document.getElementById("statusBox");
+  const params = new URLSearchParams(location.search);
+  const dataUrl = params.get("data") || "data/events.json";
   let data;
   try {
-    const res = await fetch("data/events.json", {cache:"no-store"});
+    const res = await fetch(dataUrl, {cache:"no-store"});
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     data = await res.json();
   } catch(e){
-    statusBox.innerHTML = `<div class="status err">讀取 data/events.json 失敗：${e.message}。
+    statusBox.innerHTML = `<div class="status err">讀取 ${dataUrl} 失敗：${e.message}。
       若你是用 file:// 直接打開這個檔案，瀏覽器會擋 fetch——請在專案目錄下跑
       <code>python -m http.server</code> 再用 http://localhost:8000/viewer.html 開。</div>`;
     return;
   }
 
-  statusBox.innerHTML = `<div class="status ok">資料產生於 ${data.generated_at}，涵蓋 ${data.dates[0]} ~ ${data.dates[data.dates.length-1]}</div>`;
+  statusBox.innerHTML = `<div class="status ok">讀取自 ${dataUrl}，產生於 ${data.generated_at}，涵蓋 ${data.dates[0]} ~ ${data.dates[data.dates.length-1]}</div>`;
   document.getElementById("subtitle").textContent =
     `${data.dates[0]} – ${data.dates[data.dates.length-1]}　│　真實資料，來源標於各列。此為互動示意，資料範圍受各 API 現況限制。`;
 

@@ -1,0 +1,220 @@
+{
+  "generated_at": "2026-08-08T00:05:43",
+  "dates": [
+    "2026-05-25",
+    "2026-05-26",
+    "2026-05-27",
+    "2026-05-28",
+    "2026-05-29"
+  ],
+  "rows": {
+    "行政": {
+      "source": "行政院公報（data.gov.tw dataset 5959）",
+      "cells": {
+        "2026-05-25": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        },
+        "2026-05-26": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        },
+        "2026-05-27": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        },
+        "2026-05-28": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        },
+        "2026-05-29": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        }
+      }
+    },
+    "立法": {
+      "source": "LYAPI ly.govapi.tw/v2",
+      "cells": {
+        "2026-05-25": {
+          "state": "hit",
+          "line_name": "食品安全衛生管理法修法（demo線）",
+          "nodes": [
+            {
+              "kind": "meeting",
+              "date": "2026-05-25",
+              "session_index": 1,
+              "session_count": 3,
+              "meeting_title": "第11屆第5會期財政、外交及國防委員會第1次聯席會議",
+              "committees": [
+                "財政委員會",
+                "外交及國防委員會"
+              ],
+              "agenda": "審查行政院函請審議「115年度中央政府保衛國家安全及強化不對稱戰力計畫採購特別預算案」案。(詢答及處理)【5月25日、5月27日及5月28日三天一次會】【預算提案截止時間：5月25日(星期一)下午4時】",
+              "convener": "李彥秀委員",
+              "ppg_url": "https://ppg.ly.gov.tw/ppg/sittings/2026052191/details?meetingDate=115/05/25",
+              "attachments": [
+                {
+                  "title": "1150525不對稱戰力特別預算-主計長報告",
+                  "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/00320907613253202002.pdf",
+                  "format": "pdf"
+                },
+                {
+                  "title": "1150525財政部報告",
+                  "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/16228806221050004002.pdf",
+                  "format": "pdf"
+                },
+                {
+                  "title": "國防部特別預算報告",
+                  "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/3201422201260500002.pdf",
+                  "format": "pdf"
+                },
+                {
+                  "title": "財政部115年5月27日台財庫字第11503673150號函",
+                  "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/65226011320020004002.pdf",
+                  "format": "pdf"
+                },
+                {
+                  "title": "財政部115年5月29日台財庫字第11503673570號函",
+                  "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/00220400261026105003.pdf",
+                  "format": "pdf"
+                },
+                {
+                  "title": "財政部115年5月29日台財庫字第11503674800號函",
+                  "url": "https://ppg.ly.gov.tw/ppg/SittingAttachment/download/2026052191/02001224080520661004.pdf",
+                  "format": "pdf"
+                },
+                {
+                  "title": "會議影片",
+                  "url": "https://ivod.ly.gov.tw/Demand/Meetvod?Meet=00851854334650386450",
+                  "format": "video"
+                }
+              ],
+              "days_since_anchor": 17
+            }
+          ]
+        },
+        "2026-05-26": {
+          "state": "none",
+          "note": "已查議事日程，本線當日無進度"
+        },
+        "2026-05-27": {
+          "state": "hit",
+          "line_name": "食品安全衛生管理法修法（demo線）",
+          "nodes": [
+            {
+              "kind": "meeting",
+              "date": "2026-05-27",
+              "session_index": 2,
+              "session_count": 3,
+              "meeting_title": "第11屆第5會期財政、外交及國防委員會第1次聯席會議",
+              "committees": [
+                "財政委員會",
+                "外交及國防委員會"
+              ],
+              "agenda": "審查行政院函請審議「115年度中央政府保衛國家安全及強化不對稱戰力計畫採購特別預算案」案。(詢答及處理)【5月25日、5月27日及5月28日三天一次會】【預算提案截止時間：5月25日(星期一)下午4時】",
+              "convener": "吳秉叡委員",
+              "ppg_url": "https://ppg.ly.gov.tw/ppg/sittings/2026052193/details?meetingDate=115/05/27",
+              "attachments": [
+                {
+                  "title": "會議影片",
+                  "url": "https://ivod.ly.gov.tw/Demand/Meetvod?Meet=00799454607883161830",
+                  "format": "video"
+                }
+              ],
+              "days_since_anchor": 19
+            }
+          ]
+        },
+        "2026-05-28": {
+          "state": "hit",
+          "line_name": "食品安全衛生管理法修法（demo線）",
+          "nodes": [
+            {
+              "kind": "meeting",
+              "date": "2026-05-28",
+              "session_index": 3,
+              "session_count": 3,
+              "meeting_title": "第11屆第5會期財政、外交及國防委員會第1次聯席會議",
+              "committees": [
+                "財政委員會",
+                "外交及國防委員會"
+              ],
+              "agenda": "審查行政院函請審議「115年度中央政府保衛國家安全及強化不對稱戰力計畫採購特別預算案」案。(處理)【5月25日27日及28日三天一次會】 【預算提案截止時間：5月25日（一）下午4時】",
+              "convener": "吳秉叡委員",
+              "ppg_url": "https://ppg.ly.gov.tw/ppg/sittings/2026052189/details?meetingDate=115/05/28",
+              "attachments": [
+                {
+                  "title": "會議影片",
+                  "url": "https://ivod.ly.gov.tw/Demand/Meetvod?Meet=00215343219865202031",
+                  "format": "video"
+                }
+              ],
+              "days_since_anchor": 20
+            }
+          ]
+        },
+        "2026-05-29": {
+          "state": "none",
+          "note": "已查議事日程，本線當日無進度"
+        }
+      }
+    },
+    "搜尋次數": {
+      "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends；Cofacts 點閱率待 HF token 後再併入或拆列）",
+      "caveat": "量的是主題頁面長期關注度，不是當日新聞搜尋量，與事件關聯度弱",
+      "cells": {
+        "2026-05-25": {
+          "state": "hit",
+          "article": "中華民國國防部",
+          "views": 386
+        },
+        "2026-05-26": {
+          "state": "hit",
+          "article": "中華民國國防部",
+          "views": 382
+        },
+        "2026-05-27": {
+          "state": "hit",
+          "article": "中華民國國防部",
+          "views": 439
+        },
+        "2026-05-28": {
+          "state": "hit",
+          "article": "中華民國國防部",
+          "views": 424
+        },
+        "2026-05-29": {
+          "state": "hit",
+          "article": "中華民國國防部",
+          "views": 432
+        }
+      }
+    },
+    "媒體報導": {
+      "source": "尚無結構化來源（good-first-issue 待盤點）",
+      "cells": {
+        "2026-05-25": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-05-26": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-05-27": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-05-28": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-05-29": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        }
+      }
+    }
+  }
+}

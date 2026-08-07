@@ -24,9 +24,19 @@ gated dataset 鎖住、搜尋次數又只有 Wikipedia 弱訊號可用的階段�
 媒體報導列目前也固定是 gap：還沒有做「盤點部會新聞稿結構化來源」那項
 好上手任務，沒有可信的自動來源，寧可留白也不假裝有資料。
 
+立法列可以疊兩種節點：
+  - 議案節點（bill）：來自 fetch_lyapi.py，走議案編號→議案流程 那條路
+  - 會議節點（meeting）：來自 fetch_meeting.py，走「委員會聯席會議」這個
+    結構化錨點——用在議案編號查不到、但有正式聯席審查會議可以掛的案子
+    （例如軍購特別預算案，LYAPI 沒把它跟議案編號建立關聯，但聯席會議
+    代碼本身、財政部/國防部/主計總處回覆的公文都結構化掛在同一場會議
+    底下，一樣是「規則決定，不是人決定」）。兩種節點都可能出現在同一天
+    的同一格裡，互不相關——它們是兩條不同的事件線，只是剛好那天同格。
+
 用法：
   python build_data.py --line data/demo_line.json --gazette data/gazette_today.json \
-      --wikipedia data/wiki_pageviews.json \
+      --wikipedia data/wiki_pageviews.json [--meeting data/military_budget_meeting.json] \
+      [--meeting-anchor 2026-05-08] \
       --start 2026-08-03 --end 2026-08-07 --out data/events.json
 """
 import argparse
@@ -50,38 +60,62 @@ def load(path):
         return json.load(f)
 
 
-def build_legislative_row(dates: list[str], line: dict) -> dict:
+def build_bill_nodes_by_date(line: dict) -> tuple[dict, dict]:
     all_nodes = line["nodes"]
     date_by_index = {n["node_index"]: n["date"] for n in all_nodes}
+    by_date = {}
+    for node in all_nodes:
+        by_date.setdefault(node["date"], []).append(node)
+    return by_date, date_by_index
+
+
+def build_meeting_nodes_by_date(meeting: dict, anchor_date: str | None) -> dict:
+    anchor = datetime.fromisoformat(anchor_date) if anchor_date else None
+    by_date = {}
+    for i, s in enumerate(meeting["sessions"], start=1):
+        d = s["date"]
+        node = {
+            "kind": "meeting",
+            "date": d,
+            "session_index": i,
+            "session_count": len(meeting["sessions"]),
+            "meeting_title": meeting["meeting_title"],
+            "committees": meeting["committees"],
+            "agenda": s["agenda"],
+            "convener": s["convener"],
+            "ppg_url": s["ppg_url"],
+            "attachments": s["attachments"],
+        }
+        if anchor:
+            node["days_since_anchor"] = (datetime.fromisoformat(d) - anchor).days
+        by_date.setdefault(d, []).append(node)
+    return by_date
+
+
+def build_legislative_row(dates: list[str], line: dict, meeting: dict | None = None,
+                           meeting_anchor: str | None = None) -> dict:
+    bill_by_date, date_by_index = build_bill_nodes_by_date(line)
+    meeting_by_date = build_meeting_nodes_by_date(meeting, meeting_anchor) if meeting else {}
     dates_in_view = set(dates)
 
     def neighbor(index):
         target_date = date_by_index.get(index)
         if not target_date:
             return None
-        return {
-            "node_index": index,
-            "date": target_date,
-            "in_range": target_date in dates_in_view,
-        }
-
-    by_date = {}
-    for node in all_nodes:
-        by_date.setdefault(node["date"], []).append(node)
+        return {"node_index": index, "date": target_date, "in_range": target_date in dates_in_view}
 
     row = {}
     for d in dates:
-        nodes_today = by_date.get(d)
-        if nodes_today:
-            enriched = [
-                {
-                    **n,
-                    "prev_node": neighbor(n["node_index"] - 1),
-                    "next_node": neighbor(n["node_index"] + 1),
-                }
-                for n in nodes_today
-            ]
-            row[d] = {"state": "hit", "line_name": line["line_name"], "nodes": enriched}
+        bill_nodes = bill_by_date.get(d, [])
+        enriched_bill_nodes = [
+            {**n, "kind": "bill", "prev_node": neighbor(n["node_index"] - 1), "next_node": neighbor(n["node_index"] + 1)}
+            for n in bill_nodes
+        ]
+        meeting_nodes = meeting_by_date.get(d, [])
+        all_nodes_today = enriched_bill_nodes + meeting_nodes
+
+        if all_nodes_today:
+            row[d] = {"state": "hit", "line_name": line["line_name"], "nodes": all_nodes_today}
         else:
             row[d] = {"state": "none", "note": "已查議事日程，本線當日無進度"}
     return row
@@ -127,6 +161,8 @@ def main():
     ap.add_argument("--line", required=True, help="fetch_lyapi.py 輸出的事件線 JSON")
     ap.add_argument("--gazette", required=True, help="fetch_gazette.py 輸出的公報 JSON")
     ap.add_argument("--wikipedia", required=True, help="fetch_wikipedia.py 輸出的瀏覽量 JSON")
+    ap.add_argument("--meeting", default=None, help="fetch_meeting.py 輸出的會議節點 JSON（選填）")
+    ap.add_argument("--meeting-anchor", default=None, help="會議節點的計時錨點 YYYY-MM-DD（選填）")
     ap.add_argument("--start", required=True)
     ap.add_argument("--end", required=True)
     ap.add_argument("--out", required=True)
@@ -136,6 +172,7 @@ def main():
     line = load(args.line)
     gazette_records = load(args.gazette)
     pageview_records = load(args.wikipedia)
+    meeting = load(args.meeting) if args.meeting else None
 
     events = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
@@ -147,7 +184,7 @@ def main():
             },
             "立法": {
                 "source": "LYAPI ly.govapi.tw/v2",
-                "cells": build_legislative_row(dates, line),
+                "cells": build_legislative_row(dates, line, meeting, args.meeting_anchor),
             },
             "搜尋次數": {
                 "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends；Cofacts 點閱率待 HF token 後再併入或拆列）",

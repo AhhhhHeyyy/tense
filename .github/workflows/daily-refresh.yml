@@ -1,0 +1,28 @@
+name: Daily data refresh
+
+on:
+  schedule:
+    # 23:00 UTC = 07:00 台北時間，晚於公報 18:30 更新、也晚於 LYAPI 的例行抓取
+    - cron: '0 23 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 跑資料 pipeline
+        run: python scripts/refresh_data.py
+
+      - name: 有變動才 commit
+        run: |
+          git config user.name "tense-data-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "chore: 每日資料更新 $(date -u +%Y-%m-%d)"
+          git push

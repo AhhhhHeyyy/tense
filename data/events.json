@@ -1,0 +1,230 @@
+{
+  "generated_at": "2026-08-07T23:40:11",
+  "dates": [
+    "2026-08-03",
+    "2026-08-04",
+    "2026-08-05",
+    "2026-08-06",
+    "2026-08-07"
+  ],
+  "rows": {
+    "行政": {
+      "source": "行政院公報（data.gov.tw dataset 5959）",
+      "cells": {
+        "2026-08-03": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        },
+        "2026-08-04": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        },
+        "2026-08-05": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        },
+        "2026-08-06": {
+          "state": "gap",
+          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+        },
+        "2026-08-07": {
+          "state": "hit",
+          "records": [
+            {
+              "meta_id": "167530",
+              "gazette_id": "院授主基綜字第1150201499A號",
+              "title": "行政院令：修正「交通作業基金收支保管及運用辦法」第5條、第10條條文",
+              "agency": "行政院",
+              "undertake_agency": "行政院主計總處",
+              "category": "法規",
+              "chapter": "綜合行政篇",
+              "date_published_roc": "中華民國115年8月7日",
+              "date_published": "2026-08-07",
+              "url": "https://gazette.nat.gov.tw/egFront/detail.do?metaid=165793&log=detailLog"
+            },
+            {
+              "meta_id": "167519",
+              "gazette_id": "",
+              "title": "行政院第4014次會議院長提示暨院會決定決議事項",
+              "agency": "行政院",
+              "undertake_agency": "國家發展委員會",
+              "category": "專載",
+              "chapter": "附錄",
+              "date_published_roc": "中華民國115年8月7日",
+              "date_published": "2026-08-07",
+              "url": ""
+            }
+          ]
+        }
+      }
+    },
+    "立法": {
+      "source": "LYAPI ly.govapi.tw/v2",
+      "cells": {
+        "2026-08-03": {
+          "state": "none",
+          "note": "已查議事日程，本線當日無進度"
+        },
+        "2026-08-04": {
+          "state": "none",
+          "note": "已查議事日程，本線當日無進度"
+        },
+        "2026-08-05": {
+          "state": "hit",
+          "line_name": "食品安全衛生管理法修法（demo線）",
+          "nodes": [
+            {
+              "date": "2026-08-05",
+              "bill_no": "201110228770000",
+              "bill_title": "「食品安全衛生管理法部分條文修正草案」案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/201110228770000/details",
+              "status": "委員會審查",
+              "meeting_code": null,
+              "node_index": 21,
+              "days_since_anchor": 216,
+              "days_since_prev": 5,
+              "prev_node": {
+                "node_index": 20,
+                "date": "2026-07-31",
+                "in_range": false
+              },
+              "next_node": {
+                "node_index": 22,
+                "date": "2026-08-05",
+                "in_range": true
+              }
+            },
+            {
+              "date": "2026-08-05",
+              "bill_no": "202110228290000",
+              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110228290000/details",
+              "status": "委員會審查",
+              "meeting_code": null,
+              "node_index": 22,
+              "days_since_anchor": 216,
+              "days_since_prev": 0,
+              "prev_node": {
+                "node_index": 21,
+                "date": "2026-08-05",
+                "in_range": true
+              },
+              "next_node": {
+                "node_index": 23,
+                "date": "2026-08-07",
+                "in_range": true
+              }
+            }
+          ]
+        },
+        "2026-08-06": {
+          "state": "none",
+          "note": "已查議事日程，本線當日無進度"
+        },
+        "2026-08-07": {
+          "state": "hit",
+          "line_name": "食品安全衛生管理法修法（demo線）",
+          "nodes": [
+            {
+              "date": "2026-08-07",
+              "bill_no": "202110228820000",
+              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
+              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110228820000/details",
+              "status": "排入院會",
+              "meeting_code": null,
+              "node_index": 23,
+              "days_since_anchor": 218,
+              "days_since_prev": 2,
+              "prev_node": {
+                "node_index": 22,
+                "date": "2026-08-05",
+                "in_range": true
+              },
+              "next_node": null
+            }
+          ]
+        }
+      }
+    },
+    "搜尋次數": {
+      "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends）",
+      "caveat": "量的是主題頁面長期關注度，不是當日新聞搜尋量，與事件關聯度弱",
+      "cells": {
+        "2026-08-03": {
+          "state": "hit",
+          "article": "立法院",
+          "views": 330
+        },
+        "2026-08-04": {
+          "state": "hit",
+          "article": "立法院",
+          "views": 336
+        },
+        "2026-08-05": {
+          "state": "hit",
+          "article": "立法院",
+          "views": 307
+        },
+        "2026-08-06": {
+          "state": "hit",
+          "article": "立法院",
+          "views": 347
+        },
+        "2026-08-07": {
+          "state": "gap",
+          "note": "維基百科瀏覽量有處理延遲，這天資料還沒生成"
+        }
+      }
+    },
+    "點閱率": {
+      "source": "Cofacts analytics.csv（gated，待 HF token）",
+      "cells": {
+        "2026-08-03": {
+          "state": "gap",
+          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
+        },
+        "2026-08-04": {
+          "state": "gap",
+          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
+        },
+        "2026-08-05": {
+          "state": "gap",
+          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
+        },
+        "2026-08-06": {
+          "state": "gap",
+          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
+        },
+        "2026-08-07": {
+          "state": "gap",
+          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
+        }
+      }
+    },
+    "媒體報導": {
+      "source": "尚無結構化來源（good-first-issue 待盤點）",
+      "cells": {
+        "2026-08-03": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-08-04": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-08-05": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-08-06": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-08-07": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        }
+      }
+    }
+  }
+}

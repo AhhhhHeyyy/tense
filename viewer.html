@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>時態計畫 Tense — 日期主視圖（真實資料 v1）</title>
+<style>
+  :root{
+    --ink:#111827; --navy:#1b2a55; --line:#d4d7e0; --bg:#faf9fd;
+    --paper:#ffffff; --muted:#6b7280; --gap:#9aa0ae;
+    --hit:#1b2a55; --none:#8d93a1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:28px 20px 60px;background:var(--bg);color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    font-size:14px;line-height:1.6}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 20px;font-size:13px}
+  .status{padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:12.5px}
+  .status.ok{background:#eef0f7;color:var(--navy)}
+  .status.err{background:#fdeaea;color:#8a1f1f}
+
+  .legend{display:flex;flex-wrap:wrap;gap:18px;padding:12px 16px;background:var(--paper);
+    border:1px solid var(--line);border-radius:10px;margin-bottom:24px;font-size:12.5px}
+  .lg{display:flex;align-items:center;gap:7px}
+  .swatch{width:16px;height:16px;border-radius:4px;flex:none;border:1.5px solid var(--navy)}
+  .sw-hit{background:var(--navy)}
+  .sw-none{background:var(--paper);border-style:solid;border-color:var(--none)}
+  .sw-gap{background:repeating-linear-gradient(45deg,#e6e7ec 0 4px,transparent 4px 8px);
+    border-style:dashed;border-color:var(--gap)}
+
+  .grid{display:grid;gap:0;background:var(--paper);border:1px solid var(--line);
+    border-radius:12px;overflow:hidden}
+  .hd{padding:14px 10px;text-align:center;border-bottom:2px solid var(--navy);
+    border-left:1px solid var(--line);background:#f4f5fa}
+  .hd .d{font-weight:700;font-size:15px;color:var(--navy)}
+  .hd .w{font-size:11px;color:var(--muted)}
+  .hd.corner{border-left:none;background:var(--paper)}
+  .rowlab{padding:16px 12px;border-left:none;border-top:1px solid var(--line);
+    background:#f4f5fa;font-weight:600;font-size:13px}
+  .rowlab small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:3px}
+  .cell{border-left:1px solid var(--line);border-top:1px solid var(--line);
+    padding:10px 9px;min-height:104px;vertical-align:top}
+
+  .node{border:1.5px solid var(--navy);border-radius:8px;padding:8px 9px;background:var(--paper);margin-bottom:6px}
+  .node .ttl{font-weight:600;font-size:12.5px;line-height:1.45;margin-bottom:6px}
+  .meta{font-size:11px;color:var(--navy);background:#eef0f7;border-radius:5px;
+    padding:4px 6px;margin-bottom:5px;display:flex;flex-wrap:wrap;gap:2px 8px;align-items:center}
+  .meta b{font-weight:700}
+  .src{font-size:11px;margin-top:6px}
+  .src a{color:var(--navy)}
+  .navrow{display:flex;justify-content:space-between;gap:6px;margin-top:7px;padding-top:6px;border-top:1px dotted var(--line)}
+  .navbtn{font-size:10.5px;border:1px solid var(--navy);color:var(--navy);background:var(--paper);
+    border-radius:5px;padding:3px 7px;cursor:pointer;font-family:inherit}
+  .navbtn:hover{background:#eef0f7}
+  .navbtn-off{font-size:10.5px;color:var(--none);border:1px solid var(--line);border-radius:5px;
+    padding:3px 7px;background:#f4f5fa;cursor:default}
+  @keyframes flash-pulse{0%{box-shadow:0 0 0 3px rgba(27,42,85,.55)}100%{box-shadow:0 0 0 0 rgba(27,42,85,0)}}
+  .node.flash{animation:flash-pulse 1s ease-out}
+
+  .none{border:1.5px solid var(--none);border-radius:8px;padding:10px 9px;background:var(--paper);
+    color:var(--none);font-size:11.5px;text-align:center}
+  .none .mark{font-size:16px;display:block;margin-bottom:2px}
+  .gap{border:1.5px dashed var(--gap);border-radius:8px;padding:10px 9px;
+    background:repeating-linear-gradient(45deg,#ececf1 0 5px,transparent 5px 10px);
+    color:#5c6270;font-size:11.5px;text-align:center}
+  .gap .mark{font-size:16px;display:block;margin-bottom:2px}
+
+  .callout{margin-top:26px;padding:14px 16px;border-left:4px solid var(--navy);
+    background:var(--paper);border-radius:0 10px 10px 0;font-size:13px}
+  .callout h3{margin:0 0 8px;font-size:14px}
+  .callout ul{margin:0;padding-left:18px}
+  .callout li{margin-bottom:5px}
+  .foot{margin-top:22px;font-size:11.5px;color:var(--muted)}
+  @media(max-width:900px){ .wrap{overflow-x:auto} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>時態計畫 Tense · 日期主視圖（真實資料 v1）</h1>
+  <p class="sub" id="subtitle">載入中…</p>
+  <div id="statusBox"></div>
+
+  <div class="legend">
+    <div class="lg"><span class="swatch sw-hit"></span>當日有節點</div>
+    <div class="lg"><span class="swatch sw-none"></span>已查證，當日無事（空心＝查過了）</div>
+    <div class="lg"><span class="swatch sw-gap"></span>無同尺度公開資料（斜紋＝我們不知道）</div>
+  </div>
+
+  <div id="gridBox"></div>
+
+  <div class="callout">
+    <h3>這個版本跟靜態 mockup 的差別</h3>
+    <ul>
+      <li><b>資料是即時打 API 抓的</b>，不是手 key 進 HTML。立法列來自 LYAPI 真實議案流程；行政列來自行政院公報開放資料（data.gov.tw dataset 5959）。</li>
+      <li><b>行政院公報只有「今天」的資料</b>，非今日一律誠實標成缺口，不假裝查過。這是 API 本身的限制，不是程式偷懶。</li>
+      <li><b>搜尋次數改用維基百科瀏覽量頂替 Google Trends</b>：Google Trends 沒有官方公開 API，非官方介面（裸 request、pytrends 函式庫）兩種方式實測都被 429 擋掉。維基百科瀏覽量量的是主題頁面長期關注度，不是當天新聞搜尋量，關聯度較弱，已在格子裡標注⚠。</li>
+      <li><b>點閱率、媒體報導兩列目前固定是缺口</b>：Cofacts 資料集被鎖住（需要 Hugging Face 帳號＋授權同意＋token），媒體報導還沒有結構化來源可信任。格狀資料結構已經留好位置，接上真資料時不用改這個檔案。</li>
+      <li><b>立法列示範用的是食品安全衛生管理法修法線</b>，不是共筆裡舉例的軍購特別預算案——因為 LYAPI 清單端點的查詢篩選目前實測是壞的，還沒能直接用關鍵字/提案編號查到那個特定案子的議案編號，需要先手動去 ppg.ly.gov.tw 查一次起點編號。</li>
+      <li><b>立法節點加了兩種連結導引</b>：① 每個節點卡片點得進 LYAPI 議案頁面原始連結；② 卡片下方「◀上一步／下一步▶」可以跳到同一條線的鄰近節點——如果鄰近節點不在目前顯示的日期範圍內，按鈕會變灰並標出它實際的日期，不會假裝跳得過去。</li>
+    </ul>
+  </div>
+
+  <p class="foot" id="footNote"></p>
+</div>
+
+<script>
+const WEEKDAY = ["日","一","二","三","四","五","六"];
+const ROW_ORDER = ["行政","立法","搜尋次數","點閱率","媒體報導"];
+const ROW_SUB = {
+  "行政":"行政院／各部會",
+  "立法":"立法院 LYAPI",
+  "搜尋次數":"維基百科瀏覽量（非 Google Trends）",
+  "點閱率":"Cofacts analytics",
+  "媒體報導":"僅標題與連結"
+};
+
+function fmtDate(iso){
+  const [y,m,d] = iso.split("-");
+  return { md: `${m}/${d}`, w: WEEKDAY[new Date(iso+"T00:00:00").getDay()] };
+}
+
+function navButton(dir, neighbor){
+  const arrow = dir === "prev" ? "◀ 上一步" : "下一步 ▶";
+  if (!neighbor){
+    return `<span class="navbtn navbtn-off">${arrow}</span>`;
+  }
+  if (neighbor.in_range){
+    return `<button class="navbtn" onclick="jumpToNode(${neighbor.node_index})">${arrow}</button>`;
+  }
+  return `<span class="navbtn navbtn-off" title="第 ${neighbor.node_index} 個節點在 ${neighbor.date}，不在目前顯示範圍內">${arrow}（${neighbor.date}，範圍外）</span>`;
+}
+
+function renderLegislativeNode(node){
+  const distStr = node.days_since_prev===null ? "" : ` · 距上次進度 <b>${node.days_since_prev}</b> 天`;
+  return `<div class="node" id="ln-node-${node.node_index}">
+    <div class="ttl">${node.bill_title}<br><span style="font-weight:400">${node.status}</span></div>
+    <div class="meta">◷ 本線第 <b>${node.node_index}</b> 個節點${distStr} · 已歷時 <b>${node.days_since_anchor}</b> 天</div>
+    <div class="src">→ <a href="${node.bill_url}" target="_blank" rel="noopener">議案頁面（${node.bill_no}）</a></div>
+    <div class="navrow">${navButton("prev", node.prev_node)}${navButton("next", node.next_node)}</div>
+  </div>`;
+}
+
+function jumpToNode(nodeIndex){
+  const el = document.getElementById(`ln-node-${nodeIndex}`);
+  if (!el) return;
+  el.scrollIntoView({behavior:"smooth", block:"center"});
+  el.classList.remove("flash");
+  void el.offsetWidth;
+  el.classList.add("flash");
+}
+
+function renderSearchNode(cell){
+  return `<div class="node">
+    <div class="ttl">「${cell.article}」條目瀏覽量</div>
+    <div class="meta"><b>${cell.views}</b> 次瀏覽／日</div>
+    <div class="src" style="color:var(--muted)">⚠ 主題頁面長期關注度，非當日新聞搜尋量</div>
+  </div>`;
+}
+
+function renderAdminRecord(rec){
+  const link = rec.url ? `<div class="src">→ <a href="${rec.url}" target="_blank" rel="noopener">${rec.gazette_id || "原文"}</a></div>` : "";
+  return `<div class="node">
+    <div class="ttl">${rec.title}</div>
+    <div class="meta">${rec.category} · ${rec.undertake_agency || rec.agency}</div>
+    ${link}
+  </div>`;
+}
+
+function renderCell(row, cell){
+  if (cell.state === "hit"){
+    if (row === "行政"){
+      return `<div class="cell">${cell.records.map(renderAdminRecord).join("")}</div>`;
+    }
+    if (row === "立法"){
+      return `<div class="cell">${cell.nodes.map(renderLegislativeNode).join("")}</div>`;
+    }
+    if (row === "搜尋次數"){
+      return `<div class="cell">${renderSearchNode(cell)}</div>`;
+    }
+    return `<div class="cell"><div class="node">（尚未定義此列的 hit 渲染方式）</div></div>`;
+  }
+  if (cell.state === "none"){
+    return `<div class="cell"><div class="none"><span class="mark">○</span>${cell.note||""}</div></div>`;
+  }
+  return `<div class="cell"><div class="gap"><span class="mark">⋰</span>${cell.note||""}</div></div>`;
+}
+
+async function main(){
+  const statusBox = document.getElementById("statusBox");
+  let data;
+  try {
+    const res = await fetch("data/events.json", {cache:"no-store"});
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch(e){
+    statusBox.innerHTML = `<div class="status err">讀取 data/events.json 失敗：${e.message}。
+      若你是用 file:// 直接打開這個檔案，瀏覽器會擋 fetch——請在專案目錄下跑
+      <code>python -m http.server</code> 再用 http://localhost:8000/viewer.html 開。</div>`;
+    return;
+  }
+
+  statusBox.innerHTML = `<div class="status ok">資料產生於 ${data.generated_at}，涵蓋 ${data.dates[0]} ~ ${data.dates[data.dates.length-1]}</div>`;
+  document.getElementById("subtitle").textContent =
+    `${data.dates[0]} – ${data.dates[data.dates.length-1]}　│　真實資料，來源標於各列。此為互動示意，資料範圍受各 API 現況限制。`;
+
+  const dates = data.dates;
+  let gridHtml = `<div class="grid" style="grid-template-columns:118px repeat(${dates.length},1fr)">`;
+  gridHtml += `<div class="hd corner"></div>`;
+  for (const d of dates){
+    const {md,w} = fmtDate(d);
+    gridHtml += `<div class="hd"><div class="d">${md}</div><div class="w">${w}</div></div>`;
+  }
+  for (const rowName of ROW_ORDER){
+    const row = data.rows[rowName];
+    gridHtml += `<div class="rowlab">${rowName}<small>${ROW_SUB[rowName]}</small></div>`;
+    for (const d of dates){
+      gridHtml += renderCell(rowName, row.cells[d]);
+    }
+  }
+  gridHtml += `</div>`;
+  document.getElementById("gridBox").innerHTML = gridHtml;
+
+  const sources = ROW_ORDER.map(r => `${r}: ${data.rows[r].source}`).join(" ／ ");
+  document.getElementById("footNote").textContent = `資料源：${sources}`;
+}
+
+main();
+</script>
+</body>
+</html>

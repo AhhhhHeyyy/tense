@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-07T15:45:14",
+  "generated_at": "2026-08-07T23:57:41",
   "dates": [
     "2026-08-03",
     "2026-08-04",
@@ -147,7 +147,7 @@
       }
     },
     "搜尋次數": {
-      "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends）",
+      "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends；Cofacts 點閱率待 HF token 後再併入或拆列）",
       "caveat": "量的是主題頁面長期關注度，不是當日新聞搜尋量，與事件關聯度弱",
       "cells": {
         "2026-08-03": {
@@ -173,31 +173,6 @@
         "2026-08-07": {
           "state": "gap",
           "note": "維基百科瀏覽量有處理延遲，這天資料還沒生成"
-        }
-      }
-    },
-    "點閱率": {
-      "source": "Cofacts analytics.csv（gated，待 HF token）",
-      "cells": {
-        "2026-08-03": {
-          "state": "gap",
-          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
-        },
-        "2026-08-04": {
-          "state": "gap",
-          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
-        },
-        "2026-08-05": {
-          "state": "gap",
-          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
-        },
-        "2026-08-06": {
-          "state": "gap",
-          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
-        },
-        "2026-08-07": {
-          "state": "gap",
-          "note": "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"
         }
       }
     },

@@ -2,7 +2,7 @@
 把 fetch_lyapi.py / fetch_gazette.py 的輸出合併成 viewer.html 要吃的
 data/events.json：一個「日期 x 分類」的格狀結構。
 
-分類固定五列：行政、立法、搜尋次數、點閱率、媒體報導。
+分類固定四列：行政、立法、搜尋次數、媒體報導。
 每一格是三種狀態之一：
   - "hit"  ：當日有節點，附節點資料
   - "none" ：已查證，當日無事（空心圈）
@@ -14,10 +14,12 @@ data/events.json：一個「日期 x 分類」的格狀結構。
 「當天這則新聞的搜尋量」，訊號跟事件的關聯度是弱的，這點誠實標在
 viewer 上，不能包裝成看起來像搜尋量。
 
-點閱率（Cofacts analytics.csv）目前固定是 gap，因為該 dataset 是 gated
-dataset，需要先在 Hugging Face 同意 Cofacts Data User Agreement 並取得
-token 才能自動下載。等你有 token，把 fetch_cofacts.py（還沒寫）接上，
-這裡就能換成真資料——資料格狀本身已經留好位置，不用改 viewer。
+原本另外開的「點閱率」（Cofacts analytics.csv）列先拿掉，合併進搜尋次數
+的概念底下——兩者都是「公眾關注度」的代理指標，在 Cofacts 資料還被 HF
+gated dataset 鎖住、搜尋次數又只有 Wikipedia 弱訊號可用的階段，開兩列
+分別放缺口只會讓人以為在講兩件不同的事。等你在 Hugging Face 同意授權、
+拿到 token，把 fetch_cofacts.py（還沒寫）接上，再決定要併回搜尋次數列
+還是重新拆成獨立列。
 
 媒體報導列目前也固定是 gap：還沒有做「盤點部會新聞稿結構化來源」那項
 好上手任務，沒有可信的自動來源，寧可留白也不假裝有資料。
@@ -148,13 +150,9 @@ def main():
                 "cells": build_legislative_row(dates, line),
             },
             "搜尋次數": {
-                "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends）",
+                "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends；Cofacts 點閱率待 HF token 後再併入或拆列）",
                 "caveat": "量的是主題頁面長期關注度，不是當日新聞搜尋量，與事件關聯度弱",
                 "cells": build_search_row(dates, pageview_records),
-            },
-            "點閱率": {
-                "source": "Cofacts analytics.csv（gated，待 HF token）",
-                "cells": build_placeholder_row(dates, "資料集已鎖定，需先在 Hugging Face 同意授權並取得 token"),
             },
             "媒體報導": {
                 "source": "尚無結構化來源（good-first-issue 待盤點）",

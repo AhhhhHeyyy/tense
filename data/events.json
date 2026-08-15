@@ -1,55 +1,16 @@
 {
-  "generated_at": "2026-08-13T23:41:54",
+  "generated_at": "2026-08-15T23:20:58",
   "dates": [
-    "2026-08-07",
-    "2026-08-08",
-    "2026-08-09",
     "2026-08-10",
     "2026-08-11",
     "2026-08-12",
-    "2026-08-13"
+    "2026-08-13",
+    "2026-08-14"
   ],
   "rows": {
     "行政": {
       "source": "行政院公報（data.gov.tw dataset 5959）",
       "cells": {
-        "2026-08-07": {
-          "state": "hit",
-          "records": [
-            {
-              "meta_id": "167530",
-              "gazette_id": "院授主基綜字第1150201499A號",
-              "title": "行政院令：修正「交通作業基金收支保管及運用辦法」第5條、第10條條文",
-              "agency": "行政院",
-              "undertake_agency": "行政院主計總處",
-              "category": "法規",
-              "chapter": "綜合行政篇",
-              "date_published_roc": "中華民國115年8月7日",
-              "date_published": "2026-08-07",
-              "url": "https://gazette.nat.gov.tw/egFront/detail.do?metaid=165793&log=detailLog"
-            },
-            {
-              "meta_id": "167519",
-              "gazette_id": "",
-              "title": "行政院第4014次會議院長提示暨院會決定決議事項",
-              "agency": "行政院",
-              "undertake_agency": "國家發展委員會",
-              "category": "專載",
-              "chapter": "附錄",
-              "date_published_roc": "中華民國115年8月7日",
-              "date_published": "2026-08-07",
-              "url": ""
-            }
-          ]
-        },
-        "2026-08-08": {
-          "state": "gap",
-          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
-        },
-        "2026-08-09": {
-          "state": "gap",
-          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
-        },
         "2026-08-10": {
           "state": "gap",
           "note": "公報 API 只提供當日資料，非今日區間標為缺口"
@@ -78,44 +39,29 @@
               "url": ""
             }
           ]
+        },
+        "2026-08-14": {
+          "state": "hit",
+          "records": [
+            {
+              "meta_id": "167670",
+              "gazette_id": "",
+              "title": "行政院第4015次會議院長提示暨院會決定決議事項",
+              "agency": "行政院",
+              "undertake_agency": "國家發展委員會",
+              "category": "專載",
+              "chapter": "附錄",
+              "date_published_roc": "中華民國115年8月14日",
+              "date_published": "2026-08-14",
+              "url": ""
+            }
+          ]
         }
       }
     },
     "立法": {
       "source": "LYAPI ly.govapi.tw/v2",
       "cells": {
-        "2026-08-07": {
-          "state": "hit",
-          "line_name": "食品安全衛生管理法修法（demo線）",
-          "nodes": [
-            {
-              "date": "2026-08-07",
-              "bill_no": "202110228820000",
-              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
-              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110228820000/details",
-              "status": "排入院會",
-              "meeting_code": null,
-              "node_index": 29,
-              "days_since_anchor": 218,
-              "days_since_prev": 2,
-              "kind": "bill",
-              "prev_node": {
-                "node_index": 28,
-                "date": "2026-08-05",
-                "in_range": false
-              },
-              "next_node": null
-            }
-          ]
-        },
-        "2026-08-08": {
-          "state": "none",
-          "note": "已查議事日程，本線當日無進度"
-        },
-        "2026-08-09": {
-          "state": "none",
-          "note": "已查議事日程，本線當日無進度"
-        },
         "2026-08-10": {
           "state": "none",
           "note": "已查議事日程，本線當日無進度"
@@ -131,6 +77,10 @@
         "2026-08-13": {
           "state": "none",
           "note": "已查議事日程，本線當日無進度"
+        },
+        "2026-08-14": {
+          "state": "none",
+          "note": "已查議事日程，本線當日無進度"
         }
       }
     },
@@ -138,21 +88,6 @@
       "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends；Cofacts 點閱率待 HF token 後再併入或拆列）",
       "caveat": "量的是主題頁面長期關注度，不是當日新聞搜尋量，與事件關聯度弱",
       "cells": {
-        "2026-08-07": {
-          "state": "hit",
-          "article": "立法院",
-          "views": 386
-        },
-        "2026-08-08": {
-          "state": "hit",
-          "article": "立法院",
-          "views": 292
-        },
-        "2026-08-09": {
-          "state": "hit",
-          "article": "立法院",
-          "views": 267
-        },
         "2026-08-10": {
           "state": "hit",
           "article": "立法院",
@@ -169,6 +104,11 @@
           "views": 526
         },
         "2026-08-13": {
+          "state": "hit",
+          "article": "立法院",
+          "views": 510
+        },
+        "2026-08-14": {
           "state": "gap",
           "note": "維基百科瀏覽量有處理延遲，這天資料還沒生成"
         }
@@ -177,18 +117,6 @@
     "媒體報導": {
       "source": "尚無結構化來源（good-first-issue 待盤點）",
       "cells": {
-        "2026-08-07": {
-          "state": "gap",
-          "note": "尚未盤點部會新聞稿結構化來源"
-        },
-        "2026-08-08": {
-          "state": "gap",
-          "note": "尚未盤點部會新聞稿結構化來源"
-        },
-        "2026-08-09": {
-          "state": "gap",
-          "note": "尚未盤點部會新聞稿結構化來源"
-        },
         "2026-08-10": {
           "state": "gap",
           "note": "尚未盤點部會新聞稿結構化來源"
@@ -202,6 +130,10 @@
           "note": "尚未盤點部會新聞稿結構化來源"
         },
         "2026-08-13": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-08-14": {
           "state": "gap",
           "note": "尚未盤點部會新聞稿結構化來源"
         }

@@ -73,7 +73,9 @@ def build_line(seed_bill_no: str, anchor_date: str, line_name: str | None = None
         proposer_unit = b.get("提案單位/提案委員")
         proposers = b.get("提案人") or []
         cosigners = b.get("連署人") or []
-        term = b.get("屆")
+        # /bills/{id} 回傳欄位叫「屆」，但 /bills/{id}/related_bills 回傳的精簡版叫「屆期」——
+        # 同一個概念兩個端點用不同鍵名，只取「屆」會讓所有 related_bills 展開出來的節點 term 全是 null。
+        term = b.get("屆") or b.get("屆期")
         term_session = b.get("會期")
         for stage in b.get("議案流程", []):
             date = _earliest_date(stage.get("日期"))
@@ -114,6 +116,7 @@ def build_line(seed_bill_no: str, anchor_date: str, line_name: str | None = None
 
     return {
         "line_name": line_name or seed.get("議案名稱"),
+        "line_id": seed_bill_no,
         "seed_bill_no": seed_bill_no,
         "clock_anchor": anchor_date,
         "clock_anchor_note": "起算點由人指定，程式不自動判定——見共筆〈clock_anchor 規格缺口〉",

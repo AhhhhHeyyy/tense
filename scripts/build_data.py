@@ -38,6 +38,11 @@ gated dataset 鎖住、搜尋次數又只有 Wikipedia 弱訊號可用的階段�
       --wikipedia data/wiki_pageviews.json [--meeting data/military_budget_meeting.json] \
       [--meeting-anchor 2026-05-08] \
       --start 2026-08-03 --end 2026-08-07 --out data/events.json
+
+同時追蹤多條線：--line 可接受多個路徑，每條線的節點會標上各自的 line_id/line_name，
+合併進同一天的 nodes list（同框比較，不用 ?data= 擇一顯示）：
+  python build_data.py --line data/lines/food_safety.json data/lines/military_budget.json \
+      --gazette ... --wikipedia ... --start ... --end ... --out data/events.json
 """
 import argparse
 import json
@@ -69,13 +74,20 @@ def build_bill_nodes_by_date(line: dict) -> tuple[dict, dict]:
     return by_date, date_by_index
 
 
-def build_meeting_nodes_by_date(meeting: dict, anchor_date: str | None) -> dict:
+def line_id_of(line: dict) -> str:
+    return line.get("line_id") or line["seed_bill_no"]
+
+
+def build_meeting_nodes_by_date(meeting: dict, anchor_date: str | None,
+                                 line_id: str, line_name: str) -> dict:
     anchor = datetime.fromisoformat(anchor_date) if anchor_date else None
     by_date = {}
     for i, s in enumerate(meeting["sessions"], start=1):
         d = s["date"]
         node = {
             "kind": "meeting",
+            "line_id": line_id,
+            "line_name": line_name,
             "date": d,
             "session_index": i,
             "session_count": len(meeting["sessions"]),
@@ -92,13 +104,30 @@ def build_meeting_nodes_by_date(meeting: dict, anchor_date: str | None) -> dict:
     return by_date
 
 
-def build_legislative_row(dates: list[str], line: dict, meeting: dict | None = None,
-                           meeting_anchor: str | None = None) -> dict:
-    bill_by_date, date_by_index = build_bill_nodes_by_date(line)
-    meeting_by_date = build_meeting_nodes_by_date(meeting, meeting_anchor) if meeting else {}
+def build_lines_meta(lines: list[dict], meeting_line: tuple[str, str] | None = None) -> list[dict]:
+    """每條線的顯示 metadata。色票上限 3 條真彩色，第 4 條起強制灰階「其他」
+    （企劃案 3.3 節：同時最多 3 條線並列，避免色票失去區辨力）。"""
+    entries = [{"line_id": line_id_of(l), "line_name": l["line_name"]} for l in lines]
+    if meeting_line:
+        mid, mname = meeting_line
+        entries.append({"line_id": mid, "line_name": mname})
+    for i, e in enumerate(entries):
+        e["color_index"] = i if i < 3 else -1
+    return entries
+
+
+def build_legislative_row(dates: list[str], lines: list[dict], meeting: dict | None = None,
+                           meeting_anchor: str | None = None,
+                           meeting_line: tuple[str, str] | None = None) -> dict:
+    per_line = [(line, *build_bill_nodes_by_date(line)) for line in lines]
+    if meeting:
+        mid, mname = meeting_line
+        meeting_by_date = build_meeting_nodes_by_date(meeting, meeting_anchor, mid, mname)
+    else:
+        meeting_by_date = {}
     dates_in_view = set(dates)
 
-    def neighbor(index):
+    def neighbor(date_by_index, index):
         target_date = date_by_index.get(index)
         if not target_date:
             return None
@@ -106,16 +135,19 @@ def build_legislative_row(dates: list[str], line: dict, meeting: dict | None = N
 
     row = {}
     for d in dates:
-        bill_nodes = bill_by_date.get(d, [])
-        enriched_bill_nodes = [
-            {**n, "kind": "bill", "prev_node": neighbor(n["node_index"] - 1), "next_node": neighbor(n["node_index"] + 1)}
-            for n in bill_nodes
-        ]
-        meeting_nodes = meeting_by_date.get(d, [])
-        all_nodes_today = enriched_bill_nodes + meeting_nodes
+        nodes_today = []
+        for line, bill_by_date, date_by_index in per_line:
+            lid = line_id_of(line)
+            for n in bill_by_date.get(d, []):
+                nodes_today.append({
+                    **n, "kind": "bill", "line_id": lid, "line_name": line["line_name"],
+                    "prev_node": neighbor(date_by_index, n["node_index"] - 1),
+                    "next_node": neighbor(date_by_index, n["node_index"] + 1),
+                })
+        nodes_today.extend(meeting_by_date.get(d, []))
 
-        if all_nodes_today:
-            row[d] = {"state": "hit", "line_name": line["line_name"], "nodes": all_nodes_today}
+        if nodes_today:
+            row[d] = {"state": "hit", "nodes": nodes_today}
         else:
             row[d] = {"state": "none", "note": "已查議事日程，本線當日無進度"}
     return row
@@ -158,25 +190,35 @@ def build_search_row(dates: list[str], pageview_records: list[dict]) -> dict:
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--line", required=True, help="fetch_lyapi.py 輸出的事件線 JSON")
+    ap.add_argument("--line", required=True, nargs="+",
+                     help="fetch_lyapi.py 輸出的事件線 JSON，可接受多個路徑（同時追蹤多條線）")
     ap.add_argument("--gazette", required=True, help="fetch_gazette.py 輸出的公報 JSON")
     ap.add_argument("--wikipedia", required=True, help="fetch_wikipedia.py 輸出的瀏覽量 JSON")
-    ap.add_argument("--meeting", default=None, help="fetch_meeting.py 輸出的會議節點 JSON（選填）")
+    ap.add_argument("--meeting", default=None, help="fetch_meeting.py 輸出的會議節點 JSON（選填，視為額外一條線）")
     ap.add_argument("--meeting-anchor", default=None, help="會議節點的計時錨點 YYYY-MM-DD（選填）")
+    ap.add_argument("--meeting-line-id", default=None, help="會議線的 line_id（選填，預設用 meeting_code）")
+    ap.add_argument("--meeting-line-name", default=None, help="會議線的顯示名稱（選填，預設用 meeting_title）")
     ap.add_argument("--start", required=True)
     ap.add_argument("--end", required=True)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
     dates = daterange(args.start, args.end)
-    line = load(args.line)
+    lines = [load(p) for p in args.line]
     gazette_records = load(args.gazette)
     pageview_records = load(args.wikipedia)
     meeting = load(args.meeting) if args.meeting else None
+    meeting_line = None
+    if meeting:
+        meeting_line = (
+            args.meeting_line_id or meeting["meeting_code"],
+            args.meeting_line_name or meeting["meeting_title"],
+        )
 
     events = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "dates": dates,
+        "lines": build_lines_meta(lines, meeting_line),
         "rows": {
             "行政": {
                 "source": "行政院公報（data.gov.tw dataset 5959）",
@@ -184,7 +226,7 @@ def main():
             },
             "立法": {
                 "source": "LYAPI ly.govapi.tw/v2",
-                "cells": build_legislative_row(dates, line, meeting, args.meeting_anchor),
+                "cells": build_legislative_row(dates, lines, meeting, args.meeting_anchor, meeting_line),
             },
             "搜尋次數": {
                 "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends；Cofacts 點閱率待 HF token 後再併入或拆列）",

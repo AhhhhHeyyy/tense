@@ -13,6 +13,7 @@
     --cat-5:#e87ba4; --cat-6:#008300; --cat-7:#4a3aa7; --cat-8:#e34948;
     --cat-other:#9aa0ae;
     --status-good:#0ca30c; --status-progress:#2a78d6; --status-stopped:#d03b3b;
+    --line-1:#7c3aed; --line-2:#0d9488; --line-3:#b45309; --line-other:#9aa0ae;
   }
   *{box-sizing:border-box}
   body{margin:0;padding:28px 20px 60px;background:var(--bg);color:var(--ink);
@@ -34,6 +35,7 @@
   .sw-gap{background:repeating-linear-gradient(45deg,#e6e7ec 0 4px,transparent 4px 8px);
     border-style:dashed;border-color:var(--gap)}
 
+  .gridScroll{overflow-x:auto;border-radius:12px}
   .grid{display:grid;gap:0;background:var(--paper);border:1px solid var(--line);
     border-radius:12px;overflow:hidden}
   .hd{padding:14px 10px;text-align:center;border-bottom:2px solid var(--navy);
@@ -51,6 +53,10 @@
   .cell{border-left:1px solid var(--line);border-top:1px solid var(--line);
     padding:10px 9px;min-height:104px;vertical-align:top}
 
+  .line-group{margin-bottom:8px}
+  .line-group:last-child{margin-bottom:0}
+  .line-label{font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:4px;
+    display:flex;align-items:center;gap:2px}
   .node{border:1.5px solid var(--navy);border-left-width:4px;border-radius:8px;padding:8px 9px;background:var(--paper);margin-bottom:6px}
   .node .ttl{font-weight:600;font-size:12.5px;line-height:1.45;margin-bottom:6px}
   .meta{font-size:11px;color:var(--navy);background:#eef0f7;border-radius:5px;
@@ -115,7 +121,7 @@
   <h1>時態計畫 Tense · 日期主視圖（真實資料 v1）</h1>
   <p class="sub" id="subtitle">載入中…</p>
   <div id="statusBox"></div>
-  <p class="sub">兩份示範資料：<a href="index.html">這週即時資料</a>　│　<a href="index.html?data=data/events_military_budget.json">軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）</a></p>
+  <p class="sub">示範資料：<a href="index.html">這週即時資料</a>　│　<a href="index.html?data=data/events_military_budget.json">軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）</a>　│　<a href="index.html?data=data/events_multi_demo.json">兩線同框比較（食安修法線＋軍購特別預算線，2026/05/25–08/21）</a></p>
 
   <div class="legend">
     <div class="lg"><span class="swatch sw-hit"></span>當日有節點</div>
@@ -171,6 +177,18 @@ const ROW_COLOR = { "行政":"var(--cat-1)", "立法":"var(--cat-2)", "搜尋次
 
 const CAT_SLOTS = ["var(--cat-1)","var(--cat-2)","var(--cat-3)","var(--cat-4)",
   "var(--cat-5)","var(--cat-6)","var(--cat-7)","var(--cat-8)"];
+// 同時最多 3 條線給真彩色，第 4 條起強制灰階「其他」（企劃案 3.3 節，避免色票失去區辨力）
+const LINE_PALETTE = ["var(--line-1)","var(--line-2)","var(--line-3)"];
+let LINE_META = {};
+function buildLineMeta(data){
+  LINE_META = {};
+  for (const l of (data.lines || [])){
+    LINE_META[l.line_id] = {
+      line_name: l.line_name,
+      color: (l.color_index >= 0 && l.color_index < LINE_PALETTE.length) ? LINE_PALETTE[l.color_index] : "var(--line-other)"
+    };
+  }
+}
 const ADMIN_CATEGORY_ORDER = ["令","法律","條約","解釋令","公告","覆議案","訴願決定書","專載","其他"];
 const BILL_TYPE_ORDER = ["法律案","預算案","決議案","其他"];
 const SOURCE_ORDER = ["委員提案","政府提案","黨團提案","委員會提案"];
@@ -269,6 +287,27 @@ function renderMeetingNode(node){
   </div>`;
 }
 
+function renderLegislativeGroups(nodes){
+  // 方案 B：同一天格子內卡片依線分組，每條線一個小色點＋文字標籤（企劃案 3.2 節）
+  // 線色只做標籤不做色塊，不佔用既有列色版位（企劃案 3.3 節）
+  const groups = new Map();
+  for (const n of nodes){
+    const lid = n.line_id || "unknown";
+    if (!groups.has(lid)) groups.set(lid, []);
+    groups.get(lid).push(n);
+  }
+  let html = "";
+  for (const [lid, groupNodes] of groups){
+    const meta = LINE_META[lid] || { line_name: groupNodes[0].line_name || lid, color: "var(--line-other)" };
+    const nodesHtml = groupNodes.map(n => n.kind === "meeting" ? renderMeetingNode(n) : renderLegislativeNode(n)).join("");
+    html += `<div class="line-group">
+      <div class="line-label">${dot(meta.color)}<span>${meta.line_name}</span></div>
+      ${nodesHtml}
+    </div>`;
+  }
+  return html;
+}
+
 function renderAdminRecord(rec){
   const link = rec.url ? `<div class="src">→ <a href="${rec.url}" target="_blank" rel="noopener">${rec.gazette_id || "原文"}</a></div>` : "";
   return `<div class="node">
@@ -337,8 +376,7 @@ function renderCell(row, cell){
       return `<div class="${cellClass}">${cell.records.map(renderAdminRecord).join("")}</div>`;
     }
     if (row === "立法"){
-      const html = cell.nodes.map(n => n.kind === "meeting" ? renderMeetingNode(n) : renderLegislativeNode(n)).join("");
-      return `<div class="${cellClass}">${html}</div>`;
+      return `<div class="${cellClass}">${renderLegislativeGroups(cell.nodes)}</div>`;
     }
     if (row === "搜尋次數"){
       return `<div class="${cellClass}">${renderSearchNode(cell)}</div>`;
@@ -360,7 +398,12 @@ function renderGrid(){
   if (!data) return;
   const dates = data.dates;
   const activeRows = ROW_ORDER.filter(r => ACTIVE_ROWS.has(r));
-  let gridHtml = `<div class="grid" style="grid-template-columns:118px repeat(${dates.length},1fr)">`;
+  // 日期範圍短就平均填滿寬度；範圍長（多線合併後常見）就固定欄寬，讓格內卡片維持可讀寬度，交給外層捲動
+  const COL_MIN_PX = 96;
+  const useFixedCols = dates.length > 10;
+  const colTemplate = useFixedCols ? `repeat(${dates.length},${COL_MIN_PX}px)` : `repeat(${dates.length},1fr)`;
+  const gridWidthStyle = useFixedCols ? `width:${118 + dates.length * COL_MIN_PX}px` : `width:100%`;
+  let gridHtml = `<div class="gridScroll"><div class="grid" style="grid-template-columns:118px ${colTemplate};${gridWidthStyle}">`;
   gridHtml += `<div class="hd corner"></div>`;
   for (const d of dates){
     const {md,w} = fmtDate(d);
@@ -373,7 +416,7 @@ function renderGrid(){
       gridHtml += renderCell(rowName, filterCell(rowName, row.cells[d], FILTERS));
     }
   }
-  gridHtml += `</div>`;
+  gridHtml += `</div></div>`;
   document.getElementById("gridBox").innerHTML = gridHtml;
 
   const sources = activeRows.map(r => `${r}: ${data.rows[r].source}`).join(" ／ ");
@@ -465,6 +508,7 @@ async function main(){
     `${data.dates[0]} – ${data.dates[data.dates.length-1]}　│　真實資料，來源標於各列。此為互動示意，資料範圍受各 API 現況限制。`;
 
   CURRENT_DATA = data;
+  buildLineMeta(data);
   setupFilterBar(data);
   renderGrid();
 }

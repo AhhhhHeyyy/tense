@@ -82,7 +82,7 @@
   <h1>時態計畫 Tense · 日期主視圖（真實資料 v1）</h1>
   <p class="sub" id="subtitle">載入中…</p>
   <div id="statusBox"></div>
-  <p class="sub">兩份示範資料：<a href="viewer.html">這週即時資料</a>　│　<a href="viewer.html?data=data/events_military_budget.json">軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）</a></p>
+  <p class="sub">兩份示範資料：<a href="index.html">這週即時資料</a>　│　<a href="index.html?data=data/events_military_budget.json">軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）</a></p>
 
   <div class="legend">
     <div class="lg"><span class="swatch sw-hit"></span>當日有節點</div>
@@ -217,7 +217,7 @@ async function main(){
   } catch(e){
     statusBox.innerHTML = `<div class="status err">讀取 ${dataUrl} 失敗：${e.message}。
       若你是用 file:// 直接打開這個檔案，瀏覽器會擋 fetch——請在專案目錄下跑
-      <code>python -m http.server</code> 再用 http://localhost:8000/viewer.html 開。</div>`;
+      <code>python -m http.server</code> 再用 http://localhost:8000/index.html 開。</div>`;
     return;
   }
 

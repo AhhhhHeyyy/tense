@@ -1,5 +1,5 @@
 """
-把 fetch_lyapi.py / fetch_gazette.py 的輸出合併成 viewer.html 要吃的
+把 fetch_lyapi.py / fetch_gazette.py 的輸出合併成 index.html 要吃的
 data/events.json：一個「日期 x 分類」的格狀結構。
 
 分類固定四列：行政、立法、搜尋次數、媒體報導。

@@ -68,6 +68,13 @@ def build_line(seed_bill_no: str, anchor_date: str, line_name: str | None = None
         bill_no = b.get("議案編號") or b.get("billNo")
         bill_title = b.get("議案名稱", "")
         bill_url = b.get("url") or f"https://ppg.ly.gov.tw/ppg/bills/{bill_no}/details"
+        bill_type = b.get("議案類別")
+        proposal_source = b.get("提案來源")
+        proposer_unit = b.get("提案單位/提案委員")
+        proposers = b.get("提案人") or []
+        cosigners = b.get("連署人") or []
+        term = b.get("屆")
+        term_session = b.get("會期")
         for stage in b.get("議案流程", []):
             date = _earliest_date(stage.get("日期"))
             if not date:
@@ -79,6 +86,13 @@ def build_line(seed_bill_no: str, anchor_date: str, line_name: str | None = None
                 "bill_url": bill_url,
                 "status": stage.get("狀態"),
                 "meeting_code": stage.get("會議代碼"),
+                "bill_type": bill_type,
+                "proposal_source": proposal_source,
+                "proposer_unit": proposer_unit,
+                "proposers": proposers,
+                "cosigners": cosigners,
+                "term": term,
+                "term_session": term_session,
             })
 
     raw_nodes.sort(key=lambda n: n["date"])

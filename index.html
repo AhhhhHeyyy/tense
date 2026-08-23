@@ -9,6 +9,10 @@
     --ink:#111827; --navy:#1b2a55; --line:#d4d7e0; --bg:#faf9fd;
     --paper:#ffffff; --muted:#6b7280; --gap:#9aa0ae;
     --hit:#1b2a55; --none:#8d93a1;
+    --cat-1:#2a78d6; --cat-2:#eb6834; --cat-3:#1baf7a; --cat-4:#eda100;
+    --cat-5:#e87ba4; --cat-6:#008300; --cat-7:#4a3aa7; --cat-8:#e34948;
+    --cat-other:#9aa0ae;
+    --status-good:#0ca30c; --status-progress:#2a78d6; --status-stopped:#d03b3b;
   }
   *{box-sizing:border-box}
   body{margin:0;padding:28px 20px 60px;background:var(--bg);color:var(--ink);
@@ -37,17 +41,27 @@
   .hd .d{font-weight:700;font-size:15px;color:var(--navy)}
   .hd .w{font-size:11px;color:var(--muted)}
   .hd.corner{border-left:none;background:var(--paper)}
-  .rowlab{padding:16px 12px;border-left:none;border-top:1px solid var(--line);
-    background:#f4f5fa;font-weight:600;font-size:13px}
+  .rowlab{padding:16px 12px 16px 9px;border-left:none;border-top:1px solid var(--line);
+    border-left:4px solid transparent;background:#f4f5fa;font-weight:600;font-size:13px}
+  .rowlab.rl-admin{border-left-color:var(--cat-1)}
+  .rowlab.rl-legislative{border-left-color:var(--cat-2)}
+  .rowlab.rl-search{border-left-color:var(--cat-3)}
+  .rowlab.rl-media{border-left-color:var(--cat-4)}
   .rowlab small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:3px}
   .cell{border-left:1px solid var(--line);border-top:1px solid var(--line);
     padding:10px 9px;min-height:104px;vertical-align:top}
 
-  .node{border:1.5px solid var(--navy);border-radius:8px;padding:8px 9px;background:var(--paper);margin-bottom:6px}
+  .node{border:1.5px solid var(--navy);border-left-width:4px;border-radius:8px;padding:8px 9px;background:var(--paper);margin-bottom:6px}
   .node .ttl{font-weight:600;font-size:12.5px;line-height:1.45;margin-bottom:6px}
   .meta{font-size:11px;color:var(--navy);background:#eef0f7;border-radius:5px;
     padding:4px 6px;margin-bottom:5px;display:flex;flex-wrap:wrap;gap:2px 8px;align-items:center}
   .meta b{font-weight:700}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;flex:none;vertical-align:middle}
+  .tag{display:inline-flex;align-items:center;font-size:10.5px;color:var(--ink)}
+  .cell-admin .node{border-left-color:var(--cat-1)}
+  .cell-legislative .node{border-left-color:var(--cat-2)}
+  .cell-search .node{border-left-color:var(--cat-3)}
+  .cell-media .node{border-left-color:var(--cat-4)}
   .src{font-size:11px;margin-top:6px}
   .src a{color:var(--navy)}
   .anchor{font-size:10.5px;color:var(--muted);border-top:1px dotted var(--line);padding-top:4px;line-height:1.5}
@@ -67,6 +81,25 @@
     background:repeating-linear-gradient(45deg,#ececf1 0 5px,transparent 5px 10px);
     color:#5c6270;font-size:11.5px;text-align:center}
   .gap .mark{font-size:16px;display:block;margin-bottom:2px}
+
+  .filterbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 16px;
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-bottom:16px}
+  .kwInput{flex:1;min-width:200px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;
+    font-family:inherit;font-size:13px;color:var(--ink)}
+  .kwInput:focus{outline:2px solid var(--navy);outline-offset:1px}
+  .selInput{padding:7px 8px;border:1px solid var(--line);border-radius:7px;
+    font-family:inherit;font-size:12.5px;color:var(--ink);background:var(--paper)}
+  .selInput:focus{outline:2px solid var(--navy);outline-offset:1px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:12px;padding:5px 11px 5px 9px;border-radius:99px;border:1.5px solid var(--chip-c,var(--navy));
+    color:var(--chip-c,var(--navy));background:var(--paper);cursor:pointer;font-family:inherit;
+    user-select:none;display:inline-flex;align-items:center}
+  .chip.active{background:var(--chip-c,var(--navy));color:#fff}
+  .chip.active .dot{background:#fff}
+  .chip.off{opacity:.4}
+  .filtered{border:1.5px dashed var(--none);border-radius:8px;padding:10px 9px;
+    color:var(--none);font-size:11.5px;text-align:center}
+  .filtered .mark{font-size:16px;display:block;margin-bottom:2px}
 
   .callout{margin-top:26px;padding:14px 16px;border-left:4px solid var(--navy);
     background:var(--paper);border-radius:0 10px 10px 0;font-size:13px}
@@ -90,6 +123,20 @@
     <div class="lg"><span class="swatch sw-gap"></span>無同尺度公開資料（斜紋＝我們不知道）</div>
   </div>
 
+  <div class="filterbar" id="filterBar">
+    <input type="text" id="kwInput" class="kwInput" placeholder="搜尋標題、機關、法案關鍵字…">
+    <select id="billTypeSelect" class="selInput"></select>
+    <select id="sourceSelect" class="selInput"></select>
+    <select id="progressSelect" class="selInput">
+      <option value="">全部進度 ⚠</option>
+      <option value="ongoing">🔵 進行中</option>
+      <option value="passed">🟢 已通過</option>
+      <option value="stopped">🔴 未通過／已終止</option>
+    </select>
+    <div class="chips" id="rowChips"></div>
+  </div>
+  <p class="sub" style="margin:-10px 0 16px;font-size:11.5px">⚠ 「進度」為依議案狀態文字關鍵字（三讀／公布／撤回等）判斷的粗略分類，非立法院官方欄位；法案類型／提案來源僅適用於議案節點，不含委員會會議節點。</p>
+
   <div id="gridBox"></div>
 
   <div class="callout">
@@ -103,6 +150,7 @@
       <li><b>這週即時資料示範用的是食品安全衛生管理法修法線</b>，不是共筆裡舉例的軍購特別預算案——因為 LYAPI 清單端點的查詢篩選目前實測是壞的，還沒能直接用關鍵字/提案編號查到那個特定案子的議案編號。</li>
       <li><b>軍購案改用「委員會聯席會議」當結構化錨點，一樣自動化</b>：議案編號查不到，但聯席會議代碼本身、財政部/國防部/主計總處回覆的公文都結構化掛在同一場會議底下，一樣是規則決定不是人工判斷。見上方另一份示範資料——三天會期、天數計算、各部會附件全部自動抓，沒有手動輸入任何一筆。</li>
       <li><b>立法節點加了兩種連結導引</b>：① 每個節點卡片點得進 LYAPI 議案頁面原始連結；② 卡片下方「◀上一步／下一步▶」可以跳到同一條線的鄰近節點——如果鄰近節點不在目前顯示的日期範圍內，按鈕會變灰並標出它實際的日期，不會假裝跳得過去。</li>
+      <li><b>新增關鍵字搜尋＋分類篩選</b>：篩選列可依關鍵字（比對標題／機關／法案內容）、列別（行政／立法／搜尋次數／媒體報導）即時過濾目前畫面；立法列另外可依 LYAPI 回傳的「議案類別」「提案來源」（委員提案／政府提案／黨團提案等）篩選，都是 API 本身就有的結構化欄位，不是猜的。「進度」（進行中／已完成）則是唯一的例外——LYAPI 沒有這個欄位，是前端用「議案狀態」文字關鍵字（三讀／公布／撤回等）粗略判斷出來的，UI 上標了 ⚠ 提醒這不是官方分類。這些分類篩選只套用在議案節點，委員會聯席會議節點（如上方軍購案示範）沒有議案類別可分，篩選時會被排除。</li>
     </ul>
   </div>
 
@@ -118,6 +166,23 @@ const ROW_SUB = {
   "搜尋次數":"維基百科瀏覽量（非 Google Trends，待併入 Cofacts 點閱率）",
   "媒體報導":"僅標題與連結"
 };
+const ROW_SLUG = { "行政":"admin", "立法":"legislative", "搜尋次數":"search", "媒體報導":"media" };
+const ROW_COLOR = { "行政":"var(--cat-1)", "立法":"var(--cat-2)", "搜尋次數":"var(--cat-3)", "媒體報導":"var(--cat-4)" };
+
+const CAT_SLOTS = ["var(--cat-1)","var(--cat-2)","var(--cat-3)","var(--cat-4)",
+  "var(--cat-5)","var(--cat-6)","var(--cat-7)","var(--cat-8)"];
+const ADMIN_CATEGORY_ORDER = ["令","法律","條約","解釋令","公告","覆議案","訴願決定書","專載","其他"];
+const BILL_TYPE_ORDER = ["法律案","預算案","決議案","其他"];
+const SOURCE_ORDER = ["委員提案","政府提案","黨團提案","委員會提案"];
+
+function catColor(orderList, value){
+  const i = orderList.indexOf(value);
+  return (i >= 0 && i < CAT_SLOTS.length) ? CAT_SLOTS[i] : "var(--cat-other)";
+}
+
+function dot(color, title){
+  return `<span class="dot" style="background:${color}"${title ? ` title="${title}"` : ""}></span>`;
+}
 
 function fmtDate(iso){
   const [y,m,d] = iso.split("-");
@@ -135,10 +200,38 @@ function navButton(dir, neighbor){
   return `<span class="navbtn navbtn-off" title="第 ${neighbor.node_index} 個節點在 ${neighbor.date}，不在目前顯示範圍內">${arrow}（${neighbor.date}，範圍外）</span>`;
 }
 
+const PROGRESS_PASS_KEYWORDS = ["三讀","公布"];
+const PROGRESS_STOP_KEYWORDS = ["撤回","不予審議","不予受理","不成立"];
+const PROGRESS_META = {
+  passed:  { label:"已通過",       color:"var(--status-good)" },
+  stopped: { label:"未通過／已終止", color:"var(--status-stopped)" },
+  ongoing: { label:"進行中",       color:"var(--status-progress)" },
+};
+
+function billProgress(status){
+  if (status){
+    if (PROGRESS_PASS_KEYWORDS.some(kw => status.includes(kw))) return "passed";
+    if (PROGRESS_STOP_KEYWORDS.some(kw => status.includes(kw))) return "stopped";
+  }
+  return "ongoing";
+}
+
 function renderLegislativeNode(node){
   const distStr = node.days_since_prev===null ? "" : ` · 距上次進度 <b>${node.days_since_prev}</b> 天`;
+  const progress = PROGRESS_META[billProgress(node.status)];
+  const classifyBits = [];
+  if (node.bill_type){
+    classifyBits.push(`<span class="tag">${dot(catColor(BILL_TYPE_ORDER, node.bill_type))}<b>${node.bill_type}</b></span>`);
+  }
+  if (node.proposal_source){
+    classifyBits.push(`<span class="tag">${dot(catColor(SOURCE_ORDER, node.proposal_source))}${node.proposal_source}</span>`);
+  }
+  if (node.cosigners && node.cosigners.length) classifyBits.push(`連署 <b>${node.cosigners.length}</b> 人`);
+  classifyBits.push(`<span class="tag" title="依狀態文字關鍵字判斷，非官方欄位，僅供粗略篩選參考">${dot(progress.color)}${progress.label} ⚠</span>`);
+  const classifyMeta = `<div class="meta">${classifyBits.join(" · ")}</div>`;
   return `<div class="node" id="ln-node-${node.node_index}">
     <div class="ttl">${node.bill_title}<br><span style="font-weight:400">${node.status}</span></div>
+    ${classifyMeta}
     <div class="meta">◷ 本線第 <b>${node.node_index}</b> 個節點${distStr} · 已歷時 <b>${node.days_since_anchor}</b> 天</div>
     <div class="src">→ <a href="${node.bill_url}" target="_blank" rel="noopener">議案頁面（${node.bill_no}）</a></div>
     <div class="navrow">${navButton("prev", node.prev_node)}${navButton("next", node.next_node)}</div>
@@ -180,29 +273,175 @@ function renderAdminRecord(rec){
   const link = rec.url ? `<div class="src">→ <a href="${rec.url}" target="_blank" rel="noopener">${rec.gazette_id || "原文"}</a></div>` : "";
   return `<div class="node">
     <div class="ttl">${rec.title}</div>
-    <div class="meta">${rec.category} · ${rec.undertake_agency || rec.agency}</div>
+    <div class="meta">${dot(catColor(ADMIN_CATEGORY_ORDER, rec.category))}${rec.category} · ${rec.undertake_agency || rec.agency}</div>
     ${link}
   </div>`;
 }
 
+function matchesKeyword(text, kw){
+  if (!kw) return true;
+  return (text||"").toLowerCase().includes(kw.toLowerCase());
+}
+
+function adminRecordText(rec){
+  return [rec.title, rec.category, rec.agency, rec.undertake_agency].filter(Boolean).join(" ");
+}
+
+function legislativeNodeText(n){
+  if (n.kind === "meeting"){
+    return [n.meeting_title, n.agenda, (n.committees||[]).join(" "),
+      (n.attachments||[]).map(a=>a.title).join(" ")].filter(Boolean).join(" ");
+  }
+  return [n.bill_title, n.status, n.bill_type, n.proposal_source, n.proposer_unit,
+    (n.proposers||[]).join(" "), (n.cosigners||[]).join(" ")].filter(Boolean).join(" ");
+}
+
+function searchNodeText(cell){
+  return cell.article || "";
+}
+
+function legislativeNodeMatchesClassify(n, filters){
+  if (!filters.billType && !filters.source && !filters.progress) return true;
+  if (n.kind === "meeting") return false; // 會議節點沒有議案類別/提案來源/狀態可分類
+  if (filters.billType && n.bill_type !== filters.billType) return false;
+  if (filters.source && n.proposal_source !== filters.source) return false;
+  if (filters.progress && billProgress(n.status) !== filters.progress) return false;
+  return true;
+}
+
+function filterCell(row, cell, filters){
+  const anyActive = filters.keyword || filters.billType || filters.source || filters.progress;
+  if (!anyActive || cell.state !== "hit") return cell;
+  if (row === "行政"){
+    const records = cell.records.filter(r => matchesKeyword(adminRecordText(r), filters.keyword));
+    return records.length ? {...cell, records} : {state:"filtered"};
+  }
+  if (row === "立法"){
+    const nodes = cell.nodes.filter(n =>
+      matchesKeyword(legislativeNodeText(n), filters.keyword) && legislativeNodeMatchesClassify(n, filters));
+    return nodes.length ? {...cell, nodes} : {state:"filtered"};
+  }
+  if (row === "搜尋次數"){
+    return matchesKeyword(searchNodeText(cell), filters.keyword) ? cell : {state:"filtered"};
+  }
+  return cell;
+}
+
 function renderCell(row, cell){
+  const cellClass = `cell cell-${ROW_SLUG[row]}`;
+  if (cell.state === "filtered"){
+    return `<div class="${cellClass}"><div class="filtered"><span class="mark">🔍</span>不符篩選條件</div></div>`;
+  }
   if (cell.state === "hit"){
     if (row === "行政"){
-      return `<div class="cell">${cell.records.map(renderAdminRecord).join("")}</div>`;
+      return `<div class="${cellClass}">${cell.records.map(renderAdminRecord).join("")}</div>`;
     }
     if (row === "立法"){
       const html = cell.nodes.map(n => n.kind === "meeting" ? renderMeetingNode(n) : renderLegislativeNode(n)).join("");
-      return `<div class="cell">${html}</div>`;
+      return `<div class="${cellClass}">${html}</div>`;
     }
     if (row === "搜尋次數"){
-      return `<div class="cell">${renderSearchNode(cell)}</div>`;
+      return `<div class="${cellClass}">${renderSearchNode(cell)}</div>`;
     }
-    return `<div class="cell"><div class="node">（尚未定義此列的 hit 渲染方式）</div></div>`;
+    return `<div class="${cellClass}"><div class="node">（尚未定義此列的 hit 渲染方式）</div></div>`;
   }
   if (cell.state === "none"){
-    return `<div class="cell"><div class="none"><span class="mark">○</span>${cell.note||""}</div></div>`;
+    return `<div class="${cellClass}"><div class="none"><span class="mark">○</span>${cell.note||""}</div></div>`;
   }
-  return `<div class="cell"><div class="gap"><span class="mark">⋰</span>${cell.note||""}</div></div>`;
+  return `<div class="${cellClass}"><div class="gap"><span class="mark">⋰</span>${cell.note||""}</div></div>`;
+}
+
+let CURRENT_DATA = null;
+let ACTIVE_ROWS = new Set(ROW_ORDER);
+const FILTERS = { keyword: "", billType: "", source: "", progress: "" };
+
+function renderGrid(){
+  const data = CURRENT_DATA;
+  if (!data) return;
+  const dates = data.dates;
+  const activeRows = ROW_ORDER.filter(r => ACTIVE_ROWS.has(r));
+  let gridHtml = `<div class="grid" style="grid-template-columns:118px repeat(${dates.length},1fr)">`;
+  gridHtml += `<div class="hd corner"></div>`;
+  for (const d of dates){
+    const {md,w} = fmtDate(d);
+    gridHtml += `<div class="hd"><div class="d">${md}</div><div class="w">${w}</div></div>`;
+  }
+  for (const rowName of activeRows){
+    const row = data.rows[rowName];
+    gridHtml += `<div class="rowlab rl-${ROW_SLUG[rowName]}">${rowName}<small>${ROW_SUB[rowName]}</small></div>`;
+    for (const d of dates){
+      gridHtml += renderCell(rowName, filterCell(rowName, row.cells[d], FILTERS));
+    }
+  }
+  gridHtml += `</div>`;
+  document.getElementById("gridBox").innerHTML = gridHtml;
+
+  const sources = activeRows.map(r => `${r}: ${data.rows[r].source}`).join(" ／ ");
+  document.getElementById("footNote").textContent = `資料源：${sources}`;
+}
+
+function collectLegislativeValues(data, field){
+  const values = new Set();
+  const cells = data.rows["立法"]?.cells || {};
+  for (const cell of Object.values(cells)){
+    if (cell.state !== "hit") continue;
+    for (const n of cell.nodes){
+      if (n.kind !== "meeting" && n[field]) values.add(n[field]);
+    }
+  }
+  return [...values].sort();
+}
+
+function setupFilterBar(data){
+  const kwInput = document.getElementById("kwInput");
+  kwInput.addEventListener("input", () => {
+    FILTERS.keyword = kwInput.value.trim();
+    renderGrid();
+  });
+
+  const billTypeSelect = document.getElementById("billTypeSelect");
+  const sourceSelect = document.getElementById("sourceSelect");
+  const billTypes = collectLegislativeValues(data, "bill_type");
+  const sources = collectLegislativeValues(data, "proposal_source");
+  billTypeSelect.innerHTML = `<option value="">全部法案類型</option>` +
+    billTypes.map(v => `<option value="${v}">${v}</option>`).join("");
+  sourceSelect.innerHTML = `<option value="">全部提案來源</option>` +
+    sources.map(v => `<option value="${v}">${v}</option>`).join("");
+  billTypeSelect.style.display = billTypes.length ? "" : "none";
+  sourceSelect.style.display = sources.length ? "" : "none";
+
+  billTypeSelect.addEventListener("change", () => {
+    FILTERS.billType = billTypeSelect.value;
+    renderGrid();
+  });
+  sourceSelect.addEventListener("change", () => {
+    FILTERS.source = sourceSelect.value;
+    renderGrid();
+  });
+  document.getElementById("progressSelect").addEventListener("change", (e) => {
+    FILTERS.progress = e.target.value;
+    renderGrid();
+  });
+
+  const chipsBox = document.getElementById("rowChips");
+  chipsBox.innerHTML = ROW_ORDER.map(r =>
+    `<button class="chip active" data-row="${r}" style="--chip-c:${ROW_COLOR[r]}">${dot(ROW_COLOR[r])}${r}</button>`
+  ).join("");
+  chipsBox.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const r = chip.dataset.row;
+      if (ACTIVE_ROWS.has(r)){
+        ACTIVE_ROWS.delete(r);
+        chip.classList.remove("active");
+        chip.classList.add("off");
+      } else {
+        ACTIVE_ROWS.add(r);
+        chip.classList.add("active");
+        chip.classList.remove("off");
+      }
+      renderGrid();
+    });
+  });
 }
 
 async function main(){
@@ -225,25 +464,9 @@ async function main(){
   document.getElementById("subtitle").textContent =
     `${data.dates[0]} – ${data.dates[data.dates.length-1]}　│　真實資料，來源標於各列。此為互動示意，資料範圍受各 API 現況限制。`;
 
-  const dates = data.dates;
-  let gridHtml = `<div class="grid" style="grid-template-columns:118px repeat(${dates.length},1fr)">`;
-  gridHtml += `<div class="hd corner"></div>`;
-  for (const d of dates){
-    const {md,w} = fmtDate(d);
-    gridHtml += `<div class="hd"><div class="d">${md}</div><div class="w">${w}</div></div>`;
-  }
-  for (const rowName of ROW_ORDER){
-    const row = data.rows[rowName];
-    gridHtml += `<div class="rowlab">${rowName}<small>${ROW_SUB[rowName]}</small></div>`;
-    for (const d of dates){
-      gridHtml += renderCell(rowName, row.cells[d]);
-    }
-  }
-  gridHtml += `</div>`;
-  document.getElementById("gridBox").innerHTML = gridHtml;
-
-  const sources = ROW_ORDER.map(r => `${r}: ${data.rows[r].source}`).join(" ／ ");
-  document.getElementById("footNote").textContent = `資料源：${sources}`;
+  CURRENT_DATA = data;
+  setupFilterBar(data);
+  renderGrid();
 }
 
 main();

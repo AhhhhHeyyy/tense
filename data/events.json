@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T23:21:39",
+  "generated_at": "2026-08-23T18:44:19",
   "dates": [
     "2026-08-17",
     "2026-08-18",
@@ -76,6 +76,32 @@
               "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110231310000/details",
               "status": "排入院會",
               "meeting_code": null,
+              "bill_type": "法律案",
+              "proposal_source": "委員提案",
+              "proposer_unit": "本院委員陳菁徽等17人",
+              "proposers": [
+                "陳菁徽"
+              ],
+              "cosigners": [
+                "王鴻薇",
+                "黃建賓",
+                "廖偉翔",
+                "黃仁",
+                "王育敏",
+                "翁曉玲",
+                "鄭正鈐",
+                "葉元之",
+                "涂權吉",
+                "洪孟楷",
+                "魯明哲",
+                "蘇清泉",
+                "鄭天財Sra Kacaw",
+                "陳雪生",
+                "呂玉玲",
+                "黃健豪"
+              ],
+              "term": null,
+              "term_session": 5,
               "node_index": 21,
               "days_since_anchor": 232,
               "days_since_prev": 7,

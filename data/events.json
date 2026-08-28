@@ -1,13 +1,11 @@
 {
-  "generated_at": "2026-08-27T04:20:30",
+  "generated_at": "2026-08-28T06:47:26",
   "dates": [
-    "2026-08-21",
-    "2026-08-22",
-    "2026-08-23",
     "2026-08-24",
     "2026-08-25",
     "2026-08-26",
-    "2026-08-27"
+    "2026-08-27",
+    "2026-08-28"
   ],
   "lines": [
     {
@@ -20,31 +18,6 @@
     "行政": {
       "source": "行政院公報（data.gov.tw dataset 5959）",
       "cells": {
-        "2026-08-21": {
-          "state": "hit",
-          "records": [
-            {
-              "meta_id": "167811",
-              "gazette_id": "",
-              "title": "行政院第4016次會議院長提示暨院會決定決議事項",
-              "agency": "行政院",
-              "undertake_agency": "國家發展委員會",
-              "category": "專載",
-              "chapter": "附錄",
-              "date_published_roc": "中華民國115年8月21日",
-              "date_published": "2026-08-21",
-              "url": ""
-            }
-          ]
-        },
-        "2026-08-22": {
-          "state": "gap",
-          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
-        },
-        "2026-08-23": {
-          "state": "gap",
-          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
-        },
         "2026-08-24": {
           "state": "gap",
           "note": "公報 API 只提供當日資料，非今日區間標為缺口"
@@ -71,6 +44,35 @@
           "note": "公報 API 只提供當日資料，非今日區間標為缺口"
         },
         "2026-08-27": {
+          "state": "hit",
+          "records": [
+            {
+              "meta_id": "167948",
+              "gazette_id": "院臺人字第1155017651號",
+              "title": "行政院令：修正「行政院處務規程」第13條、第28條條文",
+              "agency": "行政院",
+              "undertake_agency": "行政院",
+              "category": "法規",
+              "chapter": "綜合行政篇",
+              "date_published_roc": "中華民國115年8月27日",
+              "date_published": "2026-08-27",
+              "url": ""
+            },
+            {
+              "meta_id": "167950",
+              "gazette_id": "院臺法字第1155004190A號;院台廳刑一字第11500186621號;考臺銓一字第11507001211號",
+              "title": "行政院、司法院、考試院令：訂定「公益揭弊者保護法施行細則」",
+              "agency": "行政院;司法院;考試院",
+              "undertake_agency": "行政院",
+              "category": "法規",
+              "chapter": "綜合行政篇",
+              "date_published_roc": "中華民國115年8月27日",
+              "date_published": "2026-08-27",
+              "url": "https://gazette.nat.gov.tw/egFront/detail.do?metaid=158554&log=detailLog"
+            }
+          ]
+        },
+        "2026-08-28": {
           "state": "gap",
           "note": "公報 API 只提供當日資料，非今日區間標為缺口"
         }
@@ -79,65 +81,6 @@
     "立法": {
       "source": "LYAPI ly.govapi.tw/v2",
       "cells": {
-        "2026-08-21": {
-          "state": "hit",
-          "nodes": [
-            {
-              "date": "2026-08-21",
-              "bill_no": "202110231310000",
-              "bill_title": "「食品安全衛生管理法部分條文修正草案」，請審議案。",
-              "bill_url": "https://ppg.ly.gov.tw/ppg/bills/202110231310000/details",
-              "status": "排入院會",
-              "meeting_code": null,
-              "bill_type": "法律案",
-              "proposal_source": "委員提案",
-              "proposer_unit": "本院委員陳菁徽等17人",
-              "proposers": [
-                "陳菁徽"
-              ],
-              "cosigners": [
-                "王鴻薇",
-                "黃建賓",
-                "廖偉翔",
-                "黃仁",
-                "王育敏",
-                "翁曉玲",
-                "鄭正鈐",
-                "葉元之",
-                "涂權吉",
-                "洪孟楷",
-                "魯明哲",
-                "蘇清泉",
-                "鄭天財Sra Kacaw",
-                "陳雪生",
-                "呂玉玲",
-                "黃健豪"
-              ],
-              "term": 11,
-              "term_session": 5,
-              "node_index": 21,
-              "days_since_anchor": 232,
-              "days_since_prev": 7,
-              "kind": "bill",
-              "line_id": "202110228820000",
-              "line_name": "食品安全衛生管理法修法（demo線）",
-              "prev_node": {
-                "node_index": 20,
-                "date": "2026-08-14",
-                "in_range": false
-              },
-              "next_node": null
-            }
-          ]
-        },
-        "2026-08-22": {
-          "state": "none",
-          "note": "已查議事日程，本線當日無進度"
-        },
-        "2026-08-23": {
-          "state": "none",
-          "note": "已查議事日程，本線當日無進度"
-        },
         "2026-08-24": {
           "state": "none",
           "note": "已查議事日程，本線當日無進度"
@@ -153,6 +96,10 @@
         "2026-08-27": {
           "state": "none",
           "note": "已查議事日程，本線當日無進度"
+        },
+        "2026-08-28": {
+          "state": "none",
+          "note": "已查議事日程，本線當日無進度"
         }
       }
     },
@@ -160,21 +107,6 @@
       "source": "維基百科瀏覽量（Wikimedia Pageviews API，頂替被封鎖的 Google Trends；Cofacts 點閱率待 HF token 後再併入或拆列）",
       "caveat": "量的是主題頁面長期關注度，不是當日新聞搜尋量，與事件關聯度弱",
       "cells": {
-        "2026-08-21": {
-          "state": "hit",
-          "article": "立法院",
-          "views": 352
-        },
-        "2026-08-22": {
-          "state": "hit",
-          "article": "立法院",
-          "views": 360
-        },
-        "2026-08-23": {
-          "state": "hit",
-          "article": "立法院",
-          "views": 403
-        },
         "2026-08-24": {
           "state": "hit",
           "article": "立法院",
@@ -191,6 +123,11 @@
           "views": 312
         },
         "2026-08-27": {
+          "state": "hit",
+          "article": "立法院",
+          "views": 371
+        },
+        "2026-08-28": {
           "state": "gap",
           "note": "維基百科瀏覽量有處理延遲，這天資料還沒生成"
         }
@@ -199,18 +136,6 @@
     "媒體報導": {
       "source": "尚無結構化來源（good-first-issue 待盤點）",
       "cells": {
-        "2026-08-21": {
-          "state": "gap",
-          "note": "尚未盤點部會新聞稿結構化來源"
-        },
-        "2026-08-22": {
-          "state": "gap",
-          "note": "尚未盤點部會新聞稿結構化來源"
-        },
-        "2026-08-23": {
-          "state": "gap",
-          "note": "尚未盤點部會新聞稿結構化來源"
-        },
         "2026-08-24": {
           "state": "gap",
           "note": "尚未盤點部會新聞稿結構化來源"
@@ -224,6 +149,10 @@
           "note": "尚未盤點部會新聞稿結構化來源"
         },
         "2026-08-27": {
+          "state": "gap",
+          "note": "尚未盤點部會新聞稿結構化來源"
+        },
+        "2026-08-28": {
           "state": "gap",
           "note": "尚未盤點部會新聞稿結構化來源"
         }

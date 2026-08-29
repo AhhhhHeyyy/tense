@@ -1,26 +1,38 @@
 [
   {
-    "meta_id": "167948",
-    "gazette_id": "院臺人字第1155017651號",
-    "title": "行政院令：修正「行政院處務規程」第13條、第28條條文",
-    "agency": "行政院",
-    "undertake_agency": "行政院",
-    "category": "法規",
-    "chapter": "綜合行政篇",
-    "date_published_roc": "中華民國115年8月27日",
-    "date_published": "2026-08-27",
+    "meta_id": "167973",
+    "gazette_id": "工程企字第1150100270號",
+    "title": "行政院公共工程委員會公告：預告「招標期限標準」第11條修正草案",
+    "agency": "行政院公共工程委員會",
+    "undertake_agency": "行政院公共工程委員會",
+    "category": "公告及送達",
+    "chapter": "交通建設篇",
+    "date_published_roc": "中華民國115年8月28日",
+    "date_published": "2026-08-28",
     "url": ""
   },
   {
-    "meta_id": "167950",
-    "gazette_id": "院臺法字第1155004190A號;院台廳刑一字第11500186621號;考臺銓一字第11507001211號",
-    "title": "行政院、司法院、考試院令：訂定「公益揭弊者保護法施行細則」",
-    "agency": "行政院;司法院;考試院",
-    "undertake_agency": "行政院",
-    "category": "法規",
-    "chapter": "綜合行政篇",
-    "date_published_roc": "中華民國115年8月27日",
-    "date_published": "2026-08-27",
-    "url": "https://gazette.nat.gov.tw/egFront/detail.do?metaid=158554&log=detailLog"
+    "meta_id": "167977",
+    "gazette_id": "工程人字第1150500413號",
+    "title": "行政院公共工程委員會函：更正第032卷第157期本會115年8月25日工程人字第1150020197號令「行政院公共工程委員會專業獎章頒給辦法」第2條、第3條、第4條、第6條、第7條條文如勘誤表",
+    "agency": "行政院公共工程委員會",
+    "undertake_agency": "行政院公共工程委員會",
+    "category": "其他",
+    "chapter": "交通建設篇",
+    "date_published_roc": "中華民國115年8月28日",
+    "date_published": "2026-08-28",
+    "url": ""
+  },
+  {
+    "meta_id": "167961",
+    "gazette_id": "",
+    "title": "行政院第4017次會議院長提示暨院會決定決議事項",
+    "agency": "行政院",
+    "undertake_agency": "國家發展委員會",
+    "category": "專載",
+    "chapter": "附錄",
+    "date_published_roc": "中華民國115年8月28日",
+    "date_published": "2026-08-28",
+    "url": ""
   }
 ]

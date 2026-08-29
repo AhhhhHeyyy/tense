@@ -93,6 +93,15 @@
   @keyframes flash-pulse{0%{box-shadow:0 0 0 3px rgba(27,42,85,.55)}100%{box-shadow:0 0 0 0 rgba(27,42,85,0)}}
   .node.flash{animation:flash-pulse 1s ease-out}
 
+  .node-detail{margin-top:6px}
+  .node-detail summary{cursor:pointer;font-size:10.5px;color:var(--navy);list-style:none;
+    display:inline-flex;align-items:center;gap:3px;padding:2px 0;user-select:none}
+  .node-detail summary::-webkit-details-marker{display:none}
+  .node-detail summary::before{content:"▸";font-size:9px}
+  .node-detail[open] summary::before{content:"▾"}
+  .node-detail summary:hover{text-decoration:underline}
+  .node-detail .detail-body{margin-top:5px;padding-top:5px;border-top:1px dotted var(--line)}
+
   .none{border:1.5px solid var(--none);border-radius:8px;padding:10px 9px;background:var(--paper);
     color:var(--none);font-size:11.5px;text-align:center}
   .none .mark{font-size:16px;display:block;margin-bottom:2px}
@@ -122,8 +131,13 @@
 
   .callout{margin-top:26px;padding:14px 16px;border-left:4px solid var(--navy);
     background:var(--paper);border-radius:0 10px 10px 0;font-size:13px}
-  .callout h3{margin:0 0 8px;font-size:14px}
-  .callout ul{margin:0;padding-left:18px}
+  .callout summary{margin:0;font-size:14px;font-weight:600;cursor:pointer;list-style:none;
+    display:flex;align-items:center;gap:6px;user-select:none}
+  .callout summary::-webkit-details-marker{display:none}
+  .callout summary::before{content:"▸";font-size:11px;color:var(--muted)}
+  .callout[open] summary::before{content:"▾"}
+  .callout summary:hover{color:var(--navy)}
+  .callout ul{margin:10px 0 0;padding-left:18px}
   .callout li{margin-bottom:5px}
   .foot{margin-top:22px;font-size:11.5px;color:var(--muted)}
   .mode-toggle{display:flex;align-items:center;gap:8px;margin:4px 0 10px;font-size:12px}
@@ -131,8 +145,15 @@
     background:var(--paper);color:var(--navy);cursor:pointer;font-family:inherit}
   .mode-toggle button.active{background:var(--navy);color:#fff}
   .mode-toggle .mt-note{color:var(--muted);font-size:11px}
-  .plain-note{color:var(--muted);font-style:italic;font-weight:400}
-  .plain-note .draft-flag{color:var(--status-stopped);font-style:normal;font-weight:600;font-size:10px;margin-left:2px}
+  .plain-note{display:inline-flex;align-items:center;gap:3px;color:var(--navy);font-style:normal;
+    font-weight:500;font-size:11px;background:#eef2fb;border:1px solid #c7d2ea;border-radius:6px;
+    padding:1px 7px;margin:2px 3px 0 0;line-height:1.6}
+  .plain-note .draft-flag{color:var(--status-stopped);font-weight:700;font-size:9.5px;margin-left:2px}
+  .mode-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-6px);
+    background:var(--navy);color:#fff;padding:9px 18px;border-radius:99px;font-size:12.5px;
+    box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;
+    transition:opacity .25s ease,transform .25s ease;white-space:nowrap}
+  .mode-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .gemini-btn{font-size:10.5px;border:1px solid var(--navy);color:var(--navy);background:var(--paper);
     border-radius:6px;padding:3px 8px;cursor:pointer;font-family:inherit;margin-top:3px}
   .gemini-btn:hover{background:#eef0f7}
@@ -170,8 +191,8 @@
 
   <div id="gridBox"></div>
 
-  <div class="callout">
-    <h3>這個版本跟靜態 mockup 的差別</h3>
+  <details class="callout">
+    <summary>這個版本跟靜態 mockup 的差別（工程說明，點開看細節）</summary>
     <ul>
       <li><b>資料是即時打 API 抓的</b>，不是手 key 進 HTML。立法列來自 LYAPI 真實議案流程；行政列來自行政院公報開放資料（data.gov.tw dataset 5959）。</li>
       <li><b>行政院公報只有「今天」的資料</b>，非今日一律誠實標成缺口，不假裝查過。這是 API 本身的限制，不是程式偷懶。</li>
@@ -183,7 +204,7 @@
       <li><b>立法節點加了兩種連結導引</b>：① 每個節點卡片點得進 LYAPI 議案頁面原始連結；② 卡片下方「◀上一步／下一步▶」可以跳到同一條線的鄰近節點——如果鄰近節點不在目前顯示的日期範圍內，按鈕會變灰並標出它實際的日期，不會假裝跳得過去。</li>
       <li><b>新增關鍵字搜尋＋分類篩選</b>：篩選列可依關鍵字（比對標題／機關／法案內容）、列別（行政／立法／搜尋次數／媒體報導）即時過濾目前畫面；立法列另外可依 LYAPI 回傳的「議案類別」「提案來源」（委員提案／政府提案／黨團提案等）篩選，都是 API 本身就有的結構化欄位，不是猜的。「進度」（進行中／已完成）則是唯一的例外——LYAPI 沒有這個欄位，是前端用「議案狀態」文字關鍵字（三讀／公布／撤回等）粗略判斷出來的，UI 上標了 ⚠ 提醒這不是官方分類。這些分類篩選只套用在議案節點，委員會聯席會議節點（如上方軍購案示範）沒有議案類別可分，篩選時會被排除。</li>
     </ul>
-  </div>
+  </details>
 
   <p class="foot" id="footNote"></p>
 </div>
@@ -318,9 +339,14 @@ function renderLegislativeNode(node){
   return `<div class="node" id="ln-node-${node.node_index}">
     <div class="ttl">${node.bill_title}<br><span style="font-weight:400">${plainAnnotate(node.status)}</span></div>
     ${classifyMeta}
-    <div class="meta">◷ 本線第 <b>${node.node_index}</b> 個節點${distStr} · 已歷時 <b>${node.days_since_anchor}</b> 天</div>
-    <div class="src">→ <a href="${node.bill_url}" target="_blank" rel="noopener">議案頁面（${node.bill_no}）</a></div>
-    ${geminiButtonHtml(geminiPrompt)}
+    <details class="node-detail">
+      <summary>更多細節（進度天數・原始連結・查證）</summary>
+      <div class="detail-body">
+        <div class="meta">◷ 本線第 <b>${node.node_index}</b> 個節點${distStr} · 已歷時 <b>${node.days_since_anchor}</b> 天</div>
+        <div class="src">→ <a href="${node.bill_url}" target="_blank" rel="noopener">議案頁面（${node.bill_no}）</a></div>
+        ${geminiButtonHtml(geminiPrompt)}
+      </div>
+    </details>
     <div class="navrow">${navButton("prev", node.prev_node)}${navButton("next", node.next_node)}</div>
   </div>`;
 }
@@ -328,6 +354,8 @@ function renderLegislativeNode(node){
 function jumpToNode(nodeIndex){
   const el = document.getElementById(`ln-node-${nodeIndex}`);
   if (!el) return;
+  const detail = el.querySelector(".node-detail");
+  if (detail) detail.open = true;
   el.scrollIntoView({behavior:"smooth", block:"center"});
   el.classList.remove("flash");
   void el.offsetWidth;
@@ -358,8 +386,13 @@ function renderMeetingNode(node){
     <div class="ttl">${plainAnnotate(node.meeting_title)}<br><span style="font-weight:400">第 ${node.session_index}／${node.session_count} 天會期</span></div>
     <div class="meta">◷ ${node.committees.join("、")} 聯席審查${anchorStr}</div>
     <div class="anchor" style="margin-bottom:5px">${node.agenda}</div>
-    ${attachmentLines || '<div class="src" style="color:var(--muted)">本日無附件（僅排審，無新增文件）</div>'}
-    ${geminiButtonHtml(geminiPrompt)}
+    <details class="node-detail">
+      <summary>更多細節（附件・查證）</summary>
+      <div class="detail-body">
+        ${attachmentLines || '<div class="src" style="color:var(--muted)">本日無附件（僅排審，無新增文件）</div>'}
+        ${geminiButtonHtml(geminiPrompt)}
+      </div>
+    </details>
   </div>`;
 }
 
@@ -793,6 +826,7 @@ async function renderCatalog(activeDataUrl){
 // data/plain_language_glossary.json 目前是工程端草稿，還沒經法律背景人員審閱，
 // 所以每條加註都掛著「草稿待審」，不是拿掉這件事的提醒。
 const READING_MODE_STORAGE_KEY = "tense_reading_mode";
+const MODE_SWITCH_FLASH_KEY = "tense_mode_switch_flash";
 let READING_MODE = "plain";
 let PLAIN_GLOSSARY = [];
 let GLOSSARY_IS_DRAFT = true;
@@ -825,23 +859,45 @@ function plainAnnotate(text){
   const draftFlag = GLOSSARY_IS_DRAFT
     ? `<span class="draft-flag" title="這條白話加註尚未經坑主／事件線編輯找法律背景人員審定，見 spec/reading_mode_onboarding.md 第 5 節">草稿待審</span>`
     : "";
-  return text + hits.map(h => ` <span class="plain-note">（白話：${h.plain}${draftFlag}）</span>`).join("");
+  return text + hits.map(h => ` <span class="plain-note">🗣 白話：${h.plain}${draftFlag}</span>`).join("");
 }
 
 function renderModeToggle(){
   const box = document.getElementById("modeToggleBox");
   function switchTo(mode){
     try { localStorage.setItem(READING_MODE_STORAGE_KEY, mode); } catch(e){ /* 忽略 */ }
+    try { sessionStorage.setItem(MODE_SWITCH_FLASH_KEY, mode); } catch(e){ /* 忽略 */ }
     const params = new URLSearchParams(location.search);
     params.set("mode", mode);
     location.href = `index.html?${params.toString()}`;
   }
   box.innerHTML = `
-    <button id="modeBtnPlain" class="${READING_MODE === "plain" ? "active" : ""}">白話</button>
-    <button id="modeBtnPro" class="${READING_MODE === "pro" ? "active" : ""}">專業</button>
+    <button id="modeBtnPlain" class="${READING_MODE === "plain" ? "active" : ""}">🗣 白話</button>
+    <button id="modeBtnPro" class="${READING_MODE === "pro" ? "active" : ""}">📜 專業</button>
     <span class="mt-note">${READING_MODE === "plain" ? "議事術語旁會加註白話說明（草稿待審，見 spec/reading_mode_onboarding.md）" : "沿用原始議事用語，不加註"}</span>`;
   document.getElementById("modeBtnPlain").addEventListener("click", () => switchTo("plain"));
   document.getElementById("modeBtnPro").addEventListener("click", () => switchTo("pro"));
+}
+
+// 純 UI 回饋，不改變任一模式的資訊量：切換後短暫顯示 toast，
+// 讓讀者確實感覺到「按下去、東西真的變了」，尤其是切到「專業」時
+// 版面本身不會有視覺差異，沒有這個提示會讓人以為按鈕沒反應。
+function showModeSwitchToast(){
+  let justSwitched;
+  try { justSwitched = sessionStorage.getItem(MODE_SWITCH_FLASH_KEY); } catch(e){ justSwitched = null; }
+  if (!justSwitched) return;
+  try { sessionStorage.removeItem(MODE_SWITCH_FLASH_KEY); } catch(e){ /* 忽略 */ }
+  const toast = document.createElement("div");
+  toast.className = "mode-toast";
+  toast.textContent = READING_MODE === "plain"
+    ? "✓ 已切換為白話模式：專有名詞旁加註了白話說明"
+    : "✓ 已切換為專業模式：沿用原始議事用語，不加註";
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("show"));
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 2200);
 }
 
 async function main(){
@@ -852,6 +908,7 @@ async function main(){
   READING_MODE = resolveReadingMode();
   await loadGlossary();
   renderModeToggle();
+  showModeSwitchToast();
   renderLinePicker();
   renderCatalog(linesParam ? null : dataUrl);
   let data;

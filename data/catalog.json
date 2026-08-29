@@ -10,7 +10,9 @@
       "category_snapshot": "（此區間無節點）",
       "generated_at": "2026-08-29T04:02:20",
       "selection_rationale_note": "選線判准目前記錄於 spec/multi_line_rollout.md（Phase 2 規劃要求另外整理成獨立公開文件，投給開放國會社群，尚未完成）",
-      "selection_rationale_path": "spec/multi_line_rollout.md"
+      "selection_rationale_path": "spec/multi_line_rollout.md",
+      "is_static": false,
+      "static_note": null
     },
     {
       "label": "軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）",
@@ -22,7 +24,9 @@
       "category_snapshot": "1 委員會聯席會議",
       "generated_at": "2026-08-24T01:34:04",
       "selection_rationale_note": "選線判准目前記錄於 spec/multi_line_rollout.md（Phase 2 規劃要求另外整理成獨立公開文件，投給開放國會社群，尚未完成）",
-      "selection_rationale_path": "spec/multi_line_rollout.md"
+      "selection_rationale_path": "spec/multi_line_rollout.md",
+      "is_static": true,
+      "static_note": "此卡片資料是某次手動執行 fetch 腳本產生的快照，不在 refresh_data.py 的每日排程路徑上——「最後更新」不會自己更新，要更新內容必須有人手動重跑對應腳本。"
     },
     {
       "label": "兩線同框比較（食安修法線＋軍購特別預算線，2026/05/25–08/21）",
@@ -34,7 +38,9 @@
       "category_snapshot": "11 法律案・1 委員會聯席會議",
       "generated_at": "2026-08-24T01:34:04",
       "selection_rationale_note": "選線判准目前記錄於 spec/multi_line_rollout.md（Phase 2 規劃要求另外整理成獨立公開文件，投給開放國會社群，尚未完成）",
-      "selection_rationale_path": "spec/multi_line_rollout.md"
+      "selection_rationale_path": "spec/multi_line_rollout.md",
+      "is_static": true,
+      "static_note": "此卡片資料是某次手動執行 fetch 腳本產生的快照，不在 refresh_data.py 的每日排程路徑上——「最後更新」不會自己更新，要更新內容必須有人手動重跑對應腳本。"
     }
   ]
 }

@@ -91,11 +91,11 @@ def main():
     # 每天都要重跑一次，不然「這週即時資料」那筆的日期範圍/更新時間會跟
     # events.json 本身脫鉤，變成目錄頁顯示的是過期摘要。
     run([sys.executable, SCRIPTS / "build_catalog.py",
-         "--entry", DATA / "events.json", "這週即時資料",
+         "--entry", DATA / "events.json", "這週即時資料", "auto",
          "--entry", DATA / "events_military_budget.json",
-         "軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）",
+         "軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）", "static",
          "--entry", DATA / "events_multi_demo.json",
-         "兩線同框比較（食安修法線＋軍購特別預算線，2026/05/25–08/21）",
+         "兩線同框比較（食安修法線＋軍購特別預算線，2026/05/25–08/21）", "static",
          "--out", DATA / "catalog.json"])
 
     print(f"完成：{start} ~ {end}，公報存檔累積 {len(archive)} 筆", file=sys.stderr)

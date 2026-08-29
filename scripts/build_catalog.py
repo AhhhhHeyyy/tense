@@ -15,13 +15,23 @@ git commit」這個沒有常駐後端的模式（見 spec/multi_line_rollout.md 
 已經有一個外部公開頁面可以連——沒有的東西不要編網址出來騙讀者。
 
 用法：
-  python build_catalog.py --entry data/events.json "這週即時資料" \
-      --entry data/events_military_budget.json "軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）" \
-      --entry data/events_multi_demo.json "兩線同框比較（食安修法線＋軍購特別預算線，2026/05/25–08/21）" \
+  python build_catalog.py --entry data/events.json "這週即時資料" auto \
+      --entry data/events_military_budget.json "軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）" static \
+      --entry data/events_multi_demo.json "兩線同框比較（食安修法線＋軍購特別預算線，2026/05/25–08/21）" static \
       --out data/catalog.json
+
+MODE 是 auto 或 static：
+- auto：資料在 refresh_data.py 的每日排程路徑上，會自己跟著更新，不用人管。
+- static：資料是某次手動跑 fetch 腳本產生的快照，不在每日排程覆蓋範圍內，
+  「最後更新」那個日期不會自己往前走——要更新只能有人手動重跑對應的
+  fetch 腳本。目錄頁需要誠實標出這個差別，不能讓兩種資料看起來一樣新。
 """
 import argparse
 import json
+
+STATIC_NOTE = ("此卡片資料是某次手動執行 fetch 腳本產生的快照，不在 "
+               "refresh_data.py 的每日排程路徑上——「最後更新」不會自己更新，"
+               "要更新內容必須有人手動重跑對應腳本。")
 
 
 def load(path):
@@ -29,7 +39,7 @@ def load(path):
         return json.load(f)
 
 
-def summarize(path: str, label: str) -> dict:
+def summarize(path: str, label: str, is_static: bool) -> dict:
     d = load(path)
     legis = d["rows"]["立法"]["cells"]
 
@@ -75,18 +85,25 @@ def summarize(path: str, label: str) -> dict:
         "generated_at": d.get("generated_at"),
         "selection_rationale_note": "選線判准目前記錄於 spec/multi_line_rollout.md（Phase 2 規劃要求另外整理成獨立公開文件，投給開放國會社群，尚未完成）",
         "selection_rationale_path": "spec/multi_line_rollout.md",
+        "is_static": is_static,
+        "static_note": STATIC_NOTE if is_static else None,
     }
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--entry", nargs=2, action="append", metavar=("PATH", "LABEL"),
-                     required=True, help="一筆目錄項目：events json 路徑 + 顯示用標籤，可重複")
+    ap.add_argument("--entry", nargs=3, action="append", metavar=("PATH", "LABEL", "MODE"),
+                     required=True,
+                     help="一筆目錄項目：events json 路徑 + 顯示用標籤 + auto/static，可重複")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
+    for _, _, mode in args.entry:
+        if mode not in ("auto", "static"):
+            ap.error(f"MODE 必須是 auto 或 static，收到：{mode!r}")
+
     catalog = {
-        "entries": [summarize(path, label) for path, label in args.entry],
+        "entries": [summarize(path, label, mode == "static") for path, label, mode in args.entry],
     }
 
     with open(args.out, "w", encoding="utf-8") as f:

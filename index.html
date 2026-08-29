@@ -35,6 +35,9 @@
   .catalog-card .cc-meta{font-size:11.5px;color:var(--muted);line-height:1.6}
   .catalog-card .cc-rationale{font-size:10.5px;color:var(--muted);margin-top:6px;font-style:italic}
   .cc-rationale-shared{flex-basis:100%;font-size:10.5px;color:var(--muted);font-style:italic;margin-top:-6px}
+  .static-flag{display:inline-flex;align-items:center;gap:3px;color:var(--status-stopped);
+    font-weight:600;font-size:10px;background:#fdeaea;border:1px solid #f3c6c6;border-radius:5px;
+    padding:1px 6px;margin-left:4px;cursor:help;white-space:nowrap}
   .line-picker{margin:0 0 18px;padding:11px 14px;border:1.5px dashed var(--none);border-radius:10px;font-size:12.5px}
   .line-picker .lp-title{font-weight:600;margin-bottom:6px}
   .line-picker .lp-hint{color:var(--muted);font-size:11px;margin-bottom:8px}
@@ -146,20 +149,11 @@
   .callout ul{margin:10px 0 0;padding-left:18px}
   .callout li{margin-bottom:5px}
   .foot{margin-top:22px;font-size:11.5px;color:var(--muted)}
-  .mode-toggle{display:flex;align-items:center;gap:8px;margin:4px 0 10px;font-size:12px}
-  .mode-toggle button{font-size:12px;padding:4px 11px;border-radius:99px;border:1.5px solid var(--navy);
-    background:var(--paper);color:var(--navy);cursor:pointer;font-family:inherit}
-  .mode-toggle button.active{background:var(--navy);color:#fff}
-  .mode-toggle .mt-note{color:var(--muted);font-size:11px}
-  .plain-note{display:inline-flex;align-items:center;gap:3px;color:var(--navy);font-style:normal;
-    font-weight:500;font-size:11px;background:#eef2fb;border:1px solid #c7d2ea;border-radius:6px;
-    padding:1px 7px;margin:2px 3px 0 0;line-height:1.6}
-  .plain-note .draft-flag{color:var(--status-stopped);font-weight:700;font-size:9.5px;margin-left:2px}
-  .mode-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-6px);
-    background:var(--navy);color:#fff;padding:9px 18px;border-radius:99px;font-size:12.5px;
-    box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;
-    transition:opacity .25s ease,transform .25s ease;white-space:nowrap}
-  .mode-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .gloss-term{border-bottom:1.5px dotted var(--navy);cursor:help}
+  .gloss-term.gloss-open{background:#eef2fb}
+  .gloss-tooltip{position:fixed;display:none;max-width:260px;background:var(--navy);color:#fff;
+    font-size:11.5px;font-weight:400;line-height:1.55;padding:8px 11px;border-radius:8px;
+    box-shadow:0 6px 18px rgba(0,0,0,.22);z-index:999;pointer-events:none}
   .gemini-btn{font-size:10.5px;border:1px solid var(--navy);color:var(--navy);background:var(--paper);
     border-radius:6px;padding:3px 8px;cursor:pointer;font-family:inherit;margin-top:3px}
   .gemini-btn:hover{background:#eef0f7}
@@ -169,7 +163,9 @@
 <body>
 <div class="wrap">
   <h1>時態計畫 Tense · 日期主視圖（真實資料 v1）</h1>
-  <div id="modeToggleBox" class="mode-toggle"></div>
+  <p class="sub" style="margin:4px 0 14px;font-size:11.5px">點一下（手機）或滑鼠移過去（電腦）帶
+    <span class="gloss-term" tabindex="0" data-plain="示範：這是一個議事術語解釋泡泡長什麼樣子（草稿待審，見 spec/reading_mode_onboarding.md 第 5 節）">虛線底線</span>
+    的字，可以看到議事術語的白話解釋。</p>
   <p class="sub" id="subtitle">載入中…</p>
   <div id="statusBox"></div>
   <div id="catalogBox" class="catalog">議題目錄載入中…</div>
@@ -328,10 +324,10 @@ function renderLegislativeNode(node){
   const progress = PROGRESS_META[billProgress(node.status)];
   const classifyBits = [];
   if (node.bill_type){
-    classifyBits.push(`<span class="tag">${dot(catColor(BILL_TYPE_ORDER, node.bill_type))}<b>${node.bill_type}</b></span>`);
+    classifyBits.push(`<span class="tag">${dot(catColor(BILL_TYPE_ORDER, node.bill_type))}<b>${glossaryWrap(node.bill_type)}</b></span>`);
   }
   if (node.proposal_source){
-    classifyBits.push(`<span class="tag">${dot(catColor(SOURCE_ORDER, node.proposal_source))}${node.proposal_source}</span>`);
+    classifyBits.push(`<span class="tag">${dot(catColor(SOURCE_ORDER, node.proposal_source))}${glossaryWrap(node.proposal_source)}</span>`);
   }
   if (node.cosigners && node.cosigners.length) classifyBits.push(`連署 <b>${node.cosigners.length}</b> 人`);
   classifyBits.push(`<span class="tag" title="依狀態文字關鍵字判斷，非官方欄位，僅供粗略篩選參考">${dot(progress.color)}${progress.label} ⚠</span>`);
@@ -343,14 +339,14 @@ function renderLegislativeNode(node){
 目前進度：${node.status}
 官方資料來源：${node.bill_url}`;
   return `<div class="node" id="ln-node-${node.node_index}">
-    <div class="ttl">${node.bill_title}<br><span style="font-weight:400">${plainAnnotate(node.status)}</span></div>
+    <div class="ttl">${node.bill_title}<br><span style="font-weight:400">${glossaryWrap(node.status)}</span></div>
     ${classifyMeta}
+    ${geminiButtonHtml(geminiPrompt)}
     <details class="node-detail">
-      <summary>更多細節（進度天數・原始連結・查證）</summary>
+      <summary>更多細節（進度天數・原始連結）</summary>
       <div class="detail-body">
         <div class="meta">◷ 本線第 <b>${node.node_index}</b> 個節點${distStr} · 已歷時 <b>${node.days_since_anchor}</b> 天</div>
         <div class="src">→ <a href="${node.bill_url}" target="_blank" rel="noopener">議案頁面（${node.bill_no}）</a></div>
-        ${geminiButtonHtml(geminiPrompt)}
       </div>
     </details>
     <div class="navrow">${navButton("prev", node.prev_node)}${navButton("next", node.next_node)}</div>
@@ -389,14 +385,14 @@ function renderMeetingNode(node){
 議程：${node.agenda}
 官方資料來源：${node.ppg_url}`;
   return `<div class="node">
-    <div class="ttl">${plainAnnotate(node.meeting_title)}<br><span style="font-weight:400">第 ${node.session_index}／${node.session_count} 天會期</span></div>
+    <div class="ttl">${glossaryWrap(node.meeting_title)}<br><span style="font-weight:400">第 ${node.session_index}／${node.session_count} 天會期</span></div>
     <div class="meta">◷ ${node.committees.join("、")} 聯席審查${anchorStr}</div>
     <div class="anchor" style="margin-bottom:5px">${node.agenda}</div>
+    ${geminiButtonHtml(geminiPrompt)}
     <details class="node-detail">
-      <summary>更多細節（附件・查證）</summary>
+      <summary>更多細節（附件）</summary>
       <div class="detail-body">
         ${attachmentLines || '<div class="src" style="color:var(--muted)">本日無附件（僅排審，無新增文件）</div>'}
-        ${geminiButtonHtml(geminiPrompt)}
       </div>
     </details>
   </div>`;
@@ -536,6 +532,7 @@ const FILTERS = { keyword: "", billType: "", source: "", progress: "" };
 function renderGrid(){
   const data = CURRENT_DATA;
   if (!data) return;
+  hideGlossTooltip(); // 重繪會整段換掉 innerHTML，先收掉浮動框，避免指著已經被換掉的舊節點
   const dates = data.dates;
   const activeRows = ROW_ORDER.filter(r => ACTIVE_ROWS.has(r));
   // 日期範圍短就平均填滿寬度；範圍長（多線合併後常見）就固定欄寬，讓格內卡片維持可讀寬度，交給外層捲動
@@ -859,33 +856,26 @@ async function renderCatalog(activeDataUrl){
         追蹤中 <b>${entry.bill_count}</b> 個議案${entry.has_meeting ? "＋1 場委員會聯席會議" : ""}<br>
         日期範圍：${entry.date_start} ～ ${entry.date_end}<br>
         分類分佈：${entry.category_snapshot}<br>
-        最後更新：${fmtGenAt(entry.generated_at)}
+        最後更新：${fmtGenAt(entry.generated_at)}${entry.is_static
+          ? ` <span class="static-flag" title="${escapeHtmlAttr(entry.static_note || "")}">🔧 靜態快照・待人工更新</span>`
+          : ""}
       </div>
       ${sharedRationale ? "" : `<div class="cc-rationale">ⓘ ${entry.selection_rationale_note}</div>`}
     </a>`;
   }).join("") + (sharedRationale ? `<div class="cc-rationale-shared">ⓘ ${sharedRationale}</div>` : "");
 }
 
-// ---- 閱讀模式（白話／專業）----
-// 見 spec/reading_mode_onboarding.md。2026-08-29 拍板：預設 plain。
-// data/plain_language_glossary.json 目前是工程端草稿，還沒經法律背景人員審閱，
-// 所以每條加註都掛著「草稿待審」，不是拿掉這件事的提醒。
-const READING_MODE_STORAGE_KEY = "tense_reading_mode";
-const MODE_SWITCH_FLASH_KEY = "tense_mode_switch_flash";
-let READING_MODE = "plain";
+// ---- 議事術語查詢：hover（桌面）／點一下（手機）就地顯示白話解釋 ----
+// 見 spec/reading_mode_onboarding.md 第 8 節：原本的白話／專業模式切換已
+// 廢止，因為兩模式規格要求資訊量完全相同，實際能改的只有「怎麼講」，改到
+// 最後只是在術語旁多一個小字——大部分讀者根本感覺不到差異，卻要多一層
+// 「先選你要哪種模式」的門檻。改成術語本身可查，不用先選模式：預設畫面
+// 跟原本的「專業模式」一樣乾淨，需要解釋的人隨時點得到，不需要的人完全
+// 不受影響，同時滿足第 1 節「不分身分、不猜你是誰」的原則。
+// data/plain_language_glossary.json 目前是工程端草稿，還沒經法律背景人員
+// 審閱，所以每個解釋泡泡裡都還帶著「草稿待審」，不是拿掉這件事的提醒。
 let PLAIN_GLOSSARY = [];
 let GLOSSARY_IS_DRAFT = true;
-
-function resolveReadingMode(){
-  const params = new URLSearchParams(location.search);
-  const urlMode = params.get("mode");
-  if (urlMode === "pro" || urlMode === "plain") return urlMode;
-  try {
-    const saved = localStorage.getItem(READING_MODE_STORAGE_KEY);
-    if (saved === "pro" || saved === "plain") return saved;
-  } catch(e){ /* localStorage 被封鎖（如無痕模式）時忽略，退回預設值 */ }
-  return "plain";
-}
 
 async function loadGlossary(){
   try {
@@ -897,52 +887,101 @@ async function loadGlossary(){
   }
 }
 
-function plainAnnotate(text){
-  if (READING_MODE !== "plain" || !text || !PLAIN_GLOSSARY.length) return text;
-  const hits = PLAIN_GLOSSARY.filter(g => text.includes(g.match));
-  if (!hits.length) return text;
-  const draftFlag = GLOSSARY_IS_DRAFT
-    ? `<span class="draft-flag" title="這條白話加註尚未經坑主／事件線編輯找法律背景人員審定，見 spec/reading_mode_onboarding.md 第 5 節">草稿待審</span>`
-    : "";
-  return text + hits.map(h => ` <span class="plain-note">🗣 白話：${h.plain}${draftFlag}</span>`).join("");
-}
+// 把文字裡命中字典的詞包成可互動的 span，白話解釋放 data 屬性、由共用的
+// 浮動框顯示（見下方 tooltip 邏輯）。字典詞可能互為子字串（例："二讀"是
+// "逕付二讀"的子字串），所以先找出所有命中區段、按長詞優先且不重疊的規則
+// 篩過，再一次切字串重組，不會有同一段文字被兩層標記包住的狀況。
+function glossaryWrap(text){
+  if (!text || !PLAIN_GLOSSARY.length) return escapeHtmlAttr(text || "");
+  const candidates = PLAIN_GLOSSARY
+    .filter(g => text.includes(g.match))
+    .sort((a, b) => b.match.length - a.match.length);
+  if (!candidates.length) return escapeHtmlAttr(text);
 
-function renderModeToggle(){
-  const box = document.getElementById("modeToggleBox");
-  function switchTo(mode){
-    try { localStorage.setItem(READING_MODE_STORAGE_KEY, mode); } catch(e){ /* 忽略 */ }
-    try { sessionStorage.setItem(MODE_SWITCH_FLASH_KEY, mode); } catch(e){ /* 忽略 */ }
-    const params = new URLSearchParams(location.search);
-    params.set("mode", mode);
-    location.href = `index.html?${params.toString()}`;
+  const ranges = [];
+  for (const term of candidates){
+    let idx = text.indexOf(term.match);
+    while (idx !== -1){
+      const end = idx + term.match.length;
+      const overlaps = ranges.some(r => idx < r.end && end > r.start);
+      if (!overlaps) ranges.push({start: idx, end, term});
+      idx = text.indexOf(term.match, idx + 1);
+    }
   }
-  box.innerHTML = `
-    <button id="modeBtnPlain" class="${READING_MODE === "plain" ? "active" : ""}">🗣 白話</button>
-    <button id="modeBtnPro" class="${READING_MODE === "pro" ? "active" : ""}">📜 專業</button>
-    <span class="mt-note">${READING_MODE === "plain" ? "議事術語旁會加註白話說明（草稿待審，見 spec/reading_mode_onboarding.md）" : "沿用原始議事用語，不加註"}</span>`;
-  document.getElementById("modeBtnPlain").addEventListener("click", () => switchTo("plain"));
-  document.getElementById("modeBtnPro").addEventListener("click", () => switchTo("pro"));
+  if (!ranges.length) return escapeHtmlAttr(text);
+  ranges.sort((a, b) => a.start - b.start);
+
+  let html = "";
+  let cursor = 0;
+  for (const r of ranges){
+    html += escapeHtmlAttr(text.slice(cursor, r.start));
+    const plain = r.term.plain + (GLOSSARY_IS_DRAFT ? "（草稿待審，見 spec/reading_mode_onboarding.md 第 5 節）" : "");
+    html += `<span class="gloss-term" tabindex="0" data-plain="${escapeHtmlAttr(plain)}">${escapeHtmlAttr(text.slice(r.start, r.end))}</span>`;
+    cursor = r.end;
+  }
+  html += escapeHtmlAttr(text.slice(cursor));
+  return html;
 }
 
-// 純 UI 回饋，不改變任一模式的資訊量：切換後短暫顯示 toast，
-// 讓讀者確實感覺到「按下去、東西真的變了」，尤其是切到「專業」時
-// 版面本身不會有視覺差異，沒有這個提示會讓人以為按鈕沒反應。
-function showModeSwitchToast(){
-  let justSwitched;
-  try { justSwitched = sessionStorage.getItem(MODE_SWITCH_FLASH_KEY); } catch(e){ justSwitched = null; }
-  if (!justSwitched) return;
-  try { sessionStorage.removeItem(MODE_SWITCH_FLASH_KEY); } catch(e){ /* 忽略 */ }
-  const toast = document.createElement("div");
-  toast.className = "mode-toast";
-  toast.textContent = READING_MODE === "plain"
-    ? "✓ 已切換為白話模式：專有名詞旁加註了白話說明"
-    : "✓ 已切換為專業模式：沿用原始議事用語，不加註";
-  document.body.appendChild(toast);
-  requestAnimationFrame(() => toast.classList.add("show"));
-  setTimeout(() => {
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 300);
-  }, 2200);
+// 共用的一個浮動說明框，fixed 定位掛在 body 底下——卡片常常在會捲動的
+// 格子裡，如果用 CSS 疊在詞語正下方的 absolute popup，容易被格子的
+// overflow 裁掉一半，所以改成量詞語位置、用 JS 定位一個獨立的浮動框。
+let GLOSS_TIP_EL = null;
+
+function ensureGlossTooltip(){
+  if (!GLOSS_TIP_EL){
+    GLOSS_TIP_EL = document.createElement("div");
+    GLOSS_TIP_EL.className = "gloss-tooltip";
+    GLOSS_TIP_EL.setAttribute("role", "tooltip");
+    document.body.appendChild(GLOSS_TIP_EL);
+  }
+  return GLOSS_TIP_EL;
+}
+
+function showGlossTooltip(el){
+  const tip = ensureGlossTooltip();
+  tip.textContent = el.dataset.plain;
+  tip.style.display = "block";
+  const r = el.getBoundingClientRect();
+  const tipRect = tip.getBoundingClientRect();
+  const left = Math.min(Math.max(r.left, 8), window.innerWidth - tipRect.width - 8);
+  let top = r.bottom + 6;
+  if (top + tipRect.height > window.innerHeight) top = r.top - tipRect.height - 6;
+  tip.style.left = `${left}px`;
+  tip.style.top = `${top}px`;
+}
+
+function hideGlossTooltip(){
+  if (GLOSS_TIP_EL) GLOSS_TIP_EL.style.display = "none";
+  document.querySelectorAll(".gloss-term.gloss-open").forEach(el => el.classList.remove("gloss-open"));
+}
+
+function setupGlossaryEvents(){
+  document.addEventListener("mouseover", (e) => {
+    const el = e.target.closest(".gloss-term");
+    if (el) showGlossTooltip(el);
+  });
+  document.addEventListener("mouseout", (e) => {
+    const el = e.target.closest(".gloss-term");
+    if (el && !el.classList.contains("gloss-open")) hideGlossTooltip();
+  });
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest(".gloss-term");
+    if (el){
+      e.stopPropagation();
+      const wasOpen = el.classList.contains("gloss-open");
+      hideGlossTooltip();
+      if (!wasOpen){
+        el.classList.add("gloss-open");
+        showGlossTooltip(el);
+      }
+      return;
+    }
+    hideGlossTooltip();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") hideGlossTooltip();
+  });
 }
 
 async function main(){
@@ -950,10 +989,8 @@ async function main(){
   const params = new URLSearchParams(location.search);
   const linesParam = params.get("lines");
   const dataUrl = params.get("data") || "data/events.json";
-  READING_MODE = resolveReadingMode();
   await loadGlossary();
-  renderModeToggle();
-  showModeSwitchToast();
+  setupGlossaryEvents();
   renderLinePicker();
   renderCatalog(linesParam ? null : dataUrl);
   let data;

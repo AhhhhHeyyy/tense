@@ -34,6 +34,7 @@
   .catalog-card .cc-title{font-weight:600;font-size:13.5px;margin-bottom:5px}
   .catalog-card .cc-meta{font-size:11.5px;color:var(--muted);line-height:1.6}
   .catalog-card .cc-rationale{font-size:10.5px;color:var(--muted);margin-top:6px;font-style:italic}
+  .cc-rationale-shared{flex-basis:100%;font-size:10.5px;color:var(--muted);font-style:italic;margin-top:-6px}
   .line-picker{margin:0 0 18px;padding:11px 14px;border:1.5px dashed var(--none);border-radius:10px;font-size:12.5px}
   .line-picker .lp-title{font-weight:600;margin-bottom:6px}
   .line-picker .lp-hint{color:var(--muted);font-size:11px;margin-bottom:8px}
@@ -109,6 +110,11 @@
     background:repeating-linear-gradient(45deg,#ececf1 0 5px,transparent 5px 10px);
     color:#5c6270;font-size:11.5px;text-align:center}
   .gap .mark{font-size:16px;display:block;margin-bottom:2px}
+  .cell.compact{min-height:0}
+  .none.compact,.gap.compact{padding:6px 4px;cursor:help}
+  .none.compact .mark,.gap.compact .mark{margin-bottom:0}
+  .rownote-band{grid-column:1/-1;padding:5px 12px;background:#f4f5fa;color:var(--muted);
+    font-size:10.5px;border-top:1px solid var(--line)}
 
   .filterbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 16px;
     background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-bottom:16px}
@@ -475,7 +481,26 @@ function filterCell(row, cell, filters){
   return cell;
 }
 
-function renderCell(row, cell){
+// 同一列裡如果每一格「無事／缺口」的說明文字都一樣（例如行政列整週都是
+// 「公報 API 只提供當日資料」），代表這句話講的是整列的限制，不是那一天特有的
+// 事。與其在畫面上逐格重複 5 遍，不如把話講一次、掛在列標題下面，格子本身縮成
+// 純圖示——資訊沒有少，只是「同一句話講一次」，不是省略。文字不同（真的是
+// per-cell 才有意義）時完全不觸發，照原本逐格顯示。
+function collectRepeatedNote(row, dates, data, filters){
+  const gapNotes = new Set(); let gapCount = 0;
+  const noneNotes = new Set(); let noneCount = 0;
+  for (const d of dates){
+    const cell = filterCell(row, data.rows[row].cells[d], filters);
+    if (cell.state === "gap"){ gapNotes.add(cell.note || ""); gapCount++; }
+    if (cell.state === "none"){ noneNotes.add(cell.note || ""); noneCount++; }
+  }
+  return {
+    gap: (gapCount >= 2 && gapNotes.size === 1) ? [...gapNotes][0] : null,
+    none: (noneCount >= 2 && noneNotes.size === 1) ? [...noneNotes][0] : null,
+  };
+}
+
+function renderCell(row, cell, hoisted){
   const cellClass = `cell cell-${ROW_SLUG[row]}`;
   if (cell.state === "filtered"){
     return `<div class="${cellClass}"><div class="filtered"><span class="mark">🔍</span>不符篩選條件</div></div>`;
@@ -493,7 +518,13 @@ function renderCell(row, cell){
     return `<div class="${cellClass}"><div class="node">（尚未定義此列的 hit 渲染方式）</div></div>`;
   }
   if (cell.state === "none"){
+    if (hoisted && hoisted.none !== null && cell.note === hoisted.none){
+      return `<div class="${cellClass} compact"><div class="none compact" title="${escapeHtmlAttr(cell.note||"")}"><span class="mark">○</span></div></div>`;
+    }
     return `<div class="${cellClass}"><div class="none"><span class="mark">○</span>${cell.note||""}</div></div>`;
+  }
+  if (hoisted && hoisted.gap !== null && cell.note === hoisted.gap){
+    return `<div class="${cellClass} compact"><div class="gap compact" title="${escapeHtmlAttr(cell.note||"")}"><span class="mark">⋰</span></div></div>`;
   }
   return `<div class="${cellClass}"><div class="gap"><span class="mark">⋰</span>${cell.note||""}</div></div>`;
 }
@@ -520,9 +551,17 @@ function renderGrid(){
   }
   for (const rowName of activeRows){
     const row = data.rows[rowName];
+    const hoisted = collectRepeatedNote(rowName, dates, data, FILTERS);
+    const bandNotes = [
+      hoisted.none ? `○ 整段區間：${hoisted.none}` : "",
+      hoisted.gap ? `⋰ 整段區間：${hoisted.gap}` : "",
+    ].filter(Boolean);
+    if (bandNotes.length){
+      gridHtml += `<div class="rownote-band">${bandNotes.join("　│　")}</div>`;
+    }
     gridHtml += `<div class="rowlab rl-${ROW_SLUG[rowName]}">${rowName}<small>${ROW_SUB[rowName]}</small></div>`;
     for (const d of dates){
-      gridHtml += renderCell(rowName, filterCell(rowName, row.cells[d], FILTERS));
+      gridHtml += renderCell(rowName, filterCell(rowName, row.cells[d], FILTERS), hoisted);
     }
   }
   gridHtml += `</div></div>`;
@@ -805,6 +844,12 @@ async function renderCatalog(activeDataUrl){
     box.innerHTML = `<p class="sub">議題目錄載入失敗：${e.message}</p>`;
     return;
   }
+  // 三張卡片目前的選線判准說明文字完全相同（同一句話講給三個議題聽），逐卡重複
+  // 只是版面噪音，不是三件不同的事——偵測到全部相同時只講一次、掛在卡片列下面；
+  // 未來哪張卡的說明真的不一樣了，這裡會自動退回逐卡顯示，不會漏掉那張卡的話。
+  const rationales = new Set(catalog.entries.map(e => e.selection_rationale_note));
+  const sharedRationale = rationales.size === 1 ? [...rationales][0] : null;
+
   box.innerHTML = catalog.entries.map(entry => {
     const isActive = entry.data_path === activeDataUrl;
     const href = entry.data_path === "data/events.json" ? "index.html" : `index.html?data=${entry.data_path}`;
@@ -816,9 +861,9 @@ async function renderCatalog(activeDataUrl){
         分類分佈：${entry.category_snapshot}<br>
         最後更新：${fmtGenAt(entry.generated_at)}
       </div>
-      <div class="cc-rationale">ⓘ ${entry.selection_rationale_note}</div>
+      ${sharedRationale ? "" : `<div class="cc-rationale">ⓘ ${entry.selection_rationale_note}</div>`}
     </a>`;
-  }).join("");
+  }).join("") + (sharedRationale ? `<div class="cc-rationale-shared">ⓘ ${sharedRationale}</div>` : "");
 }
 
 // ---- 閱讀模式（白話／專業）----

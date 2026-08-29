@@ -126,12 +126,23 @@
   .callout ul{margin:0;padding-left:18px}
   .callout li{margin-bottom:5px}
   .foot{margin-top:22px;font-size:11.5px;color:var(--muted)}
+  .mode-toggle{display:flex;align-items:center;gap:8px;margin:4px 0 10px;font-size:12px}
+  .mode-toggle button{font-size:12px;padding:4px 11px;border-radius:99px;border:1.5px solid var(--navy);
+    background:var(--paper);color:var(--navy);cursor:pointer;font-family:inherit}
+  .mode-toggle button.active{background:var(--navy);color:#fff}
+  .mode-toggle .mt-note{color:var(--muted);font-size:11px}
+  .plain-note{color:var(--muted);font-style:italic;font-weight:400}
+  .plain-note .draft-flag{color:var(--status-stopped);font-style:normal;font-weight:600;font-size:10px;margin-left:2px}
+  .gemini-btn{font-size:10.5px;border:1px solid var(--navy);color:var(--navy);background:var(--paper);
+    border-radius:6px;padding:3px 8px;cursor:pointer;font-family:inherit;margin-top:3px}
+  .gemini-btn:hover{background:#eef0f7}
   @media(max-width:900px){ .wrap{overflow-x:auto} }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>時態計畫 Tense · 日期主視圖（真實資料 v1）</h1>
+  <div id="modeToggleBox" class="mode-toggle"></div>
   <p class="sub" id="subtitle">載入中…</p>
   <div id="statusBox"></div>
   <div id="catalogBox" class="catalog">議題目錄載入中…</div>
@@ -240,6 +251,43 @@ const PROGRESS_META = {
   ongoing: { label:"進行中",       color:"var(--status-progress)" },
 };
 
+// ---- Gemini 查證導流 ----
+// 純導流，不是這個網站做事實查核：把結構化事實組成查證提示，複製到剪貼簿，
+// 開一個新分頁到 Gemini 讓讀者自己貼上去問、自己判斷。網站不呼叫 Gemini API、
+// 不接收也不顯示任何回應——多線並列企劃案 00 節「不判定真假」的紅線沒有被
+// 這個功能碰到，它就是一個查證管道的捷徑，跟旁邊「→ 議案頁面」原始連結
+// 性質一樣，只是換一個查證的地方。
+function escapeHtmlAttr(s){
+  return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function geminiButtonHtml(prompt){
+  return `<button class="gemini-btn" data-gemini-prompt="${escapeHtmlAttr(prompt)}">↗ 用 Gemini 查證</button>`;
+}
+
+async function copyAndOpenGemini(prompt, btnEl){
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(prompt);
+    copied = true;
+  } catch(e){ /* 剪貼簿被封鎖或不支援（如非 https），退回手動複製 */ }
+  window.open("https://gemini.google.com/app", "_blank", "noopener");
+  if (btnEl){
+    const original = btnEl.textContent;
+    btnEl.textContent = copied ? "已複製查證提示 ✓" : "複製失敗，改用彈窗 ⚠";
+    setTimeout(() => { btnEl.textContent = original; }, copied ? 2500 : 4000);
+  }
+  if (!copied){
+    window.prompt("自動複製到剪貼簿失敗，請手動複製以下文字，貼到 Gemini 對話框：", prompt);
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".gemini-btn");
+  if (!btn) return;
+  copyAndOpenGemini(btn.dataset.geminiPrompt, btn);
+});
+
 function billProgress(status){
   if (status){
     if (PROGRESS_PASS_KEYWORDS.some(kw => status.includes(kw))) return "passed";
@@ -261,11 +309,18 @@ function renderLegislativeNode(node){
   if (node.cosigners && node.cosigners.length) classifyBits.push(`連署 <b>${node.cosigners.length}</b> 人`);
   classifyBits.push(`<span class="tag" title="依狀態文字關鍵字判斷，非官方欄位，僅供粗略篩選參考">${dot(progress.color)}${progress.label} ⚠</span>`);
   const classifyMeta = `<div class="meta">${classifyBits.join(" · ")}</div>`;
+  const geminiPrompt = `請幫我查證以下台灣立法院議案的最新進度與相關資訊，並註明你查到的資料來源：
+
+議案名稱：${node.bill_title}
+議案編號：${node.bill_no}
+目前進度：${node.status}
+官方資料來源：${node.bill_url}`;
   return `<div class="node" id="ln-node-${node.node_index}">
-    <div class="ttl">${node.bill_title}<br><span style="font-weight:400">${node.status}</span></div>
+    <div class="ttl">${node.bill_title}<br><span style="font-weight:400">${plainAnnotate(node.status)}</span></div>
     ${classifyMeta}
     <div class="meta">◷ 本線第 <b>${node.node_index}</b> 個節點${distStr} · 已歷時 <b>${node.days_since_anchor}</b> 天</div>
     <div class="src">→ <a href="${node.bill_url}" target="_blank" rel="noopener">議案頁面（${node.bill_no}）</a></div>
+    ${geminiButtonHtml(geminiPrompt)}
     <div class="navrow">${navButton("prev", node.prev_node)}${navButton("next", node.next_node)}</div>
   </div>`;
 }
@@ -293,11 +348,18 @@ function renderMeetingNode(node){
   const attachmentLines = node.attachments.map(a =>
     `<div class="src">→ <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a></div>`
   ).join("");
+  const geminiPrompt = `請幫我查證以下台灣立法院委員會聯席會議的相關資訊，並註明你查到的資料來源：
+
+會議名稱：${node.meeting_title}
+審查委員會：${node.committees.join("、")}
+議程：${node.agenda}
+官方資料來源：${node.ppg_url}`;
   return `<div class="node">
-    <div class="ttl">${node.meeting_title}<br><span style="font-weight:400">第 ${node.session_index}／${node.session_count} 天會期</span></div>
+    <div class="ttl">${plainAnnotate(node.meeting_title)}<br><span style="font-weight:400">第 ${node.session_index}／${node.session_count} 天會期</span></div>
     <div class="meta">◷ ${node.committees.join("、")} 聯席審查${anchorStr}</div>
     <div class="anchor" style="margin-bottom:5px">${node.agenda}</div>
     ${attachmentLines || '<div class="src" style="color:var(--muted)">本日無附件（僅排審，無新增文件）</div>'}
+    ${geminiButtonHtml(geminiPrompt)}
   </div>`;
 }
 
@@ -726,11 +788,70 @@ async function renderCatalog(activeDataUrl){
   }).join("");
 }
 
+// ---- 閱讀模式（白話／專業）----
+// 見 spec/reading_mode_onboarding.md。2026-08-29 拍板：預設 plain。
+// data/plain_language_glossary.json 目前是工程端草稿，還沒經法律背景人員審閱，
+// 所以每條加註都掛著「草稿待審」，不是拿掉這件事的提醒。
+const READING_MODE_STORAGE_KEY = "tense_reading_mode";
+let READING_MODE = "plain";
+let PLAIN_GLOSSARY = [];
+let GLOSSARY_IS_DRAFT = true;
+
+function resolveReadingMode(){
+  const params = new URLSearchParams(location.search);
+  const urlMode = params.get("mode");
+  if (urlMode === "pro" || urlMode === "plain") return urlMode;
+  try {
+    const saved = localStorage.getItem(READING_MODE_STORAGE_KEY);
+    if (saved === "pro" || saved === "plain") return saved;
+  } catch(e){ /* localStorage 被封鎖（如無痕模式）時忽略，退回預設值 */ }
+  return "plain";
+}
+
+async function loadGlossary(){
+  try {
+    const g = await fetchJson("data/plain_language_glossary.json");
+    PLAIN_GLOSSARY = g.terms || [];
+    GLOSSARY_IS_DRAFT = g.status !== "reviewed";
+  } catch(e){
+    PLAIN_GLOSSARY = [];
+  }
+}
+
+function plainAnnotate(text){
+  if (READING_MODE !== "plain" || !text || !PLAIN_GLOSSARY.length) return text;
+  const hits = PLAIN_GLOSSARY.filter(g => text.includes(g.match));
+  if (!hits.length) return text;
+  const draftFlag = GLOSSARY_IS_DRAFT
+    ? `<span class="draft-flag" title="這條白話加註尚未經坑主／事件線編輯找法律背景人員審定，見 spec/reading_mode_onboarding.md 第 5 節">草稿待審</span>`
+    : "";
+  return text + hits.map(h => ` <span class="plain-note">（白話：${h.plain}${draftFlag}）</span>`).join("");
+}
+
+function renderModeToggle(){
+  const box = document.getElementById("modeToggleBox");
+  function switchTo(mode){
+    try { localStorage.setItem(READING_MODE_STORAGE_KEY, mode); } catch(e){ /* 忽略 */ }
+    const params = new URLSearchParams(location.search);
+    params.set("mode", mode);
+    location.href = `index.html?${params.toString()}`;
+  }
+  box.innerHTML = `
+    <button id="modeBtnPlain" class="${READING_MODE === "plain" ? "active" : ""}">白話</button>
+    <button id="modeBtnPro" class="${READING_MODE === "pro" ? "active" : ""}">專業</button>
+    <span class="mt-note">${READING_MODE === "plain" ? "議事術語旁會加註白話說明（草稿待審，見 spec/reading_mode_onboarding.md）" : "沿用原始議事用語，不加註"}</span>`;
+  document.getElementById("modeBtnPlain").addEventListener("click", () => switchTo("plain"));
+  document.getElementById("modeBtnPro").addEventListener("click", () => switchTo("pro"));
+}
+
 async function main(){
   const statusBox = document.getElementById("statusBox");
   const params = new URLSearchParams(location.search);
   const linesParam = params.get("lines");
   const dataUrl = params.get("data") || "data/events.json";
+  READING_MODE = resolveReadingMode();
+  await loadGlossary();
+  renderModeToggle();
   renderLinePicker();
   renderCatalog(linesParam ? null : dataUrl);
   let data;

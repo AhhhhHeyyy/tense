@@ -3,12 +3,12 @@
     {
       "label": "這週即時資料",
       "data_path": "data/events.json",
-      "bill_count": 1,
+      "bill_count": 0,
       "has_meeting": false,
-      "date_start": "2026-08-18",
-      "date_end": "2026-08-24",
-      "category_snapshot": "1 法律案",
-      "generated_at": "2026-08-24T01:32:09",
+      "date_start": "2026-08-24",
+      "date_end": "2026-08-28",
+      "category_snapshot": "（此區間無節點）",
+      "generated_at": "2026-08-29T04:02:20",
       "selection_rationale_note": "選線判准目前記錄於 spec/multi_line_rollout.md（Phase 2 規劃要求另外整理成獨立公開文件，投給開放國會社群，尚未完成）",
       "selection_rationale_path": "spec/multi_line_rollout.md"
     },

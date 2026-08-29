@@ -34,6 +34,11 @@
   .catalog-card .cc-title{font-weight:600;font-size:13.5px;margin-bottom:5px}
   .catalog-card .cc-meta{font-size:11.5px;color:var(--muted);line-height:1.6}
   .catalog-card .cc-rationale{font-size:10.5px;color:var(--muted);margin-top:6px;font-style:italic}
+  .line-picker{margin:0 0 18px;padding:11px 14px;border:1.5px dashed var(--none);border-radius:10px;font-size:12.5px}
+  .line-picker .lp-title{font-weight:600;margin-bottom:6px}
+  .line-picker .lp-hint{color:var(--muted);font-size:11px;margin-bottom:8px}
+  .line-picker label{display:inline-flex;align-items:center;gap:5px;margin:0 16px 6px 0;cursor:pointer}
+  .line-picker label.lp-disabled{opacity:.4;cursor:not-allowed}
   .legend{display:flex;flex-wrap:wrap;gap:18px;padding:12px 16px;background:var(--paper);
     border:1px solid var(--line);border-radius:10px;margin-bottom:24px;font-size:12.5px}
   .lg{display:flex;align-items:center;gap:7px}
@@ -130,6 +135,7 @@
   <p class="sub" id="subtitle">載入中…</p>
   <div id="statusBox"></div>
   <div id="catalogBox" class="catalog">議題目錄載入中…</div>
+  <div id="linePickerBox" class="line-picker"></div>
 
   <div class="legend">
     <div class="lg"><span class="swatch sw-hit"></span>當日有節點</div>
@@ -499,6 +505,200 @@ function fmtGenAt(iso){
   return iso ? iso.slice(0, 10) : "未知";
 }
 
+// ---- 自訂多線組合（?lines=id1,id2）----
+// 只有立法列支援瀏覽器端即時合併，邏輯是 scripts/build_data.py 的
+// build_bill_nodes_by_date / build_meeting_nodes_by_date / build_legislative_row
+// 三個函式的 JS 版本，兩邊要同步維護。行政／搜尋次數／媒體報導三列跟「哪幾條
+// 線」無關（是特定一週的公報／維基百科資料），自訂組合模式不假裝算得出來，
+// 直接標成 gap 並說明原因，不是漏做。
+
+const MAX_CUSTOM_LINES = 3; // 企劃案 3.3 節：色票驗證過同時最多安全並列 3 條線
+
+function daterangeJS(start, end){
+  // 全程走 UTC 紀元運算＋UTC getter 組字串，不要混用本地時間建構子＋toISOString()
+  // ——那樣會依瀏覽器時區把整段日期範圍位移一天，是實測抓到的 bug，不是假設性風險。
+  const [sy, sm, sd] = start.split("-").map(Number);
+  const [ey, em, ed] = end.split("-").map(Number);
+  const dates = [];
+  let t = Date.UTC(sy, sm - 1, sd);
+  const tEnd = Date.UTC(ey, em - 1, ed);
+  while (t <= tEnd){
+    const dt = new Date(t);
+    const y = dt.getUTCFullYear();
+    const m = String(dt.getUTCMonth() + 1).padStart(2, "0");
+    const d = String(dt.getUTCDate()).padStart(2, "0");
+    dates.push(`${y}-${m}-${d}`);
+    t += 86400000;
+  }
+  return dates;
+}
+
+function buildBillNodesByDate(raw){
+  const byDate = {};
+  const dateByIndex = {};
+  for (const n of raw.nodes){
+    dateByIndex[n.node_index] = n.date;
+    (byDate[n.date] = byDate[n.date] || []).push(n);
+  }
+  return {byDate, dateByIndex};
+}
+
+function buildMeetingNodesByDate(raw, anchorDate, lineId, lineName){
+  const anchor = anchorDate ? new Date(anchorDate + "T00:00:00") : null;
+  const byDate = {};
+  raw.sessions.forEach((s, i) => {
+    const node = {
+      kind: "meeting", line_id: lineId, line_name: lineName, date: s.date,
+      session_index: i + 1, session_count: raw.sessions.length,
+      meeting_title: raw.meeting_title, committees: raw.committees,
+      agenda: s.agenda, convener: s.convener, ppg_url: s.ppg_url,
+      attachments: s.attachments,
+    };
+    if (anchor){
+      node.days_since_anchor = Math.round((new Date(s.date + "T00:00:00") - anchor) / 86400000);
+    }
+    (byDate[s.date] = byDate[s.date] || []).push(node);
+  });
+  return byDate;
+}
+
+async function fetchJson(path){
+  const res = await fetch(path, {cache:"no-store"});
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${path}`);
+  return res.json();
+}
+
+let LINES_REGISTRY = null;
+async function loadLinesRegistry(){
+  if (!LINES_REGISTRY){
+    LINES_REGISTRY = (await fetchJson("data/lines.json")).lines;
+  }
+  return LINES_REGISTRY;
+}
+
+async function buildCustomComboData(selectedIds){
+  const registry = await loadLinesRegistry();
+  const entries = selectedIds
+    .map(id => registry.find(l => l.id === id))
+    .filter(Boolean)
+    .slice(0, MAX_CUSTOM_LINES);
+  if (!entries.length) return null;
+
+  const rawList = await Promise.all(entries.map(e => fetchJson(e.raw_path)));
+
+  const perEntry = entries.map((entry, i) => {
+    const raw = rawList[i];
+    if (entry.kind === "bill"){
+      const {byDate, dateByIndex} = buildBillNodesByDate(raw);
+      return {
+        kind: "bill", byDate, dateByIndex,
+        lineId: raw.line_id || raw.seed_bill_no || entry.line_id,
+        lineName: raw.line_name || entry.line_name,
+        dates: raw.nodes.map(n => n.date),
+      };
+    }
+    const lineId = entry.line_id || raw.meeting_code;
+    const lineName = entry.line_name || raw.meeting_title;
+    return {
+      kind: "meeting", byDate: buildMeetingNodesByDate(raw, entry.meeting_anchor, lineId, lineName),
+      lineId, lineName, dates: raw.sessions.map(s => s.date),
+    };
+  });
+
+  const allDates = perEntry.flatMap(p => p.dates);
+  const start = allDates.reduce((a, b) => a < b ? a : b);
+  const end = allDates.reduce((a, b) => a > b ? a : b);
+  const dates = daterangeJS(start, end);
+  const datesInView = new Set(dates);
+
+  function neighbor(dateByIndex, index){
+    const targetDate = dateByIndex[index];
+    if (!targetDate) return null;
+    return {node_index: index, date: targetDate, in_range: datesInView.has(targetDate)};
+  }
+
+  const legisCells = {};
+  for (const d of dates){
+    let nodesToday = [];
+    for (const p of perEntry){
+      const nodesHere = p.byDate[d] || [];
+      if (p.kind === "bill"){
+        nodesToday = nodesToday.concat(nodesHere.map(n => ({
+          ...n, kind: "bill", line_id: p.lineId, line_name: p.lineName,
+          prev_node: neighbor(p.dateByIndex, n.node_index - 1),
+          next_node: neighbor(p.dateByIndex, n.node_index + 1),
+        })));
+      } else {
+        nodesToday = nodesToday.concat(nodesHere);
+      }
+    }
+    legisCells[d] = nodesToday.length
+      ? {state: "hit", nodes: nodesToday}
+      : {state: "none", note: "已查議事日程，本線當日無進度"};
+  }
+
+  const gapNote = "自訂多線比較模式：這一列沒有跟著多線一起即時合併，只有立法列支援任意組合，見 spec/multi_line_rollout.md Phase 2";
+  const gapCells = {};
+  for (const d of dates) gapCells[d] = {state: "gap", note: gapNote};
+
+  const linesMeta = perEntry.map((p, i) => ({
+    line_id: p.lineId, line_name: p.lineName, color_index: i < LINE_PALETTE.length ? i : -1,
+  }));
+
+  return {
+    generated_at: new Date().toISOString(),
+    dates,
+    lines: linesMeta,
+    rows: {
+      "行政": {source: "（自訂組合模式未涵蓋，見格內說明）", cells: gapCells},
+      "立法": {source: "LYAPI ly.govapi.tw/v2（瀏覽器端即時合併多條線，非預先產出的靜態檔）", cells: legisCells},
+      "搜尋次數": {source: "（自訂組合模式未涵蓋，見格內說明）", cells: gapCells},
+      "媒體報導": {source: "尚無結構化來源（good-first-issue 待盤點）", cells: gapCells},
+    },
+  };
+}
+
+function updateLinePickerUI(){
+  const boxes = document.querySelectorAll("#linePickerBox input[type=checkbox]");
+  const checkedCount = [...boxes].filter(b => b.checked).length;
+  boxes.forEach(b => {
+    const label = b.closest("label");
+    const atCap = checkedCount >= MAX_CUSTOM_LINES && !b.checked;
+    label.classList.toggle("lp-disabled", atCap);
+    b.disabled = atCap;
+  });
+}
+
+async function renderLinePicker(){
+  const box = document.getElementById("linePickerBox");
+  let registry;
+  try {
+    registry = await loadLinesRegistry();
+  } catch(e){
+    box.innerHTML = `<p class="sub">線清單載入失敗：${e.message}</p>`;
+    return;
+  }
+  const params = new URLSearchParams(location.search);
+  const selected = new Set((params.get("lines") || "").split(",").filter(Boolean));
+
+  box.innerHTML = `<div class="lp-title">自訂多線組合（任選最多 ${MAX_CUSTOM_LINES} 條，即時同框比較）</div>
+    <div class="lp-hint">只有立法列會合併，其餘三列在這個模式下不涵蓋——見卡片與格內說明。勾選後網址會編碼目前組合，可直接分享。</div>
+    ${registry.map(l => `<label>
+      <input type="checkbox" value="${l.id}" ${selected.has(l.id) ? "checked" : ""}>
+      ${l.line_name}
+    </label>`).join("")}`;
+
+  updateLinePickerUI();
+
+  box.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      updateLinePickerUI();
+      const ids = [...box.querySelectorAll("input[type=checkbox]:checked")].map(b => b.value);
+      location.href = ids.length ? `index.html?lines=${ids.join(",")}` : "index.html";
+    });
+  });
+}
+
 async function renderCatalog(activeDataUrl){
   const box = document.getElementById("catalogBox");
   let catalog;
@@ -529,21 +729,29 @@ async function renderCatalog(activeDataUrl){
 async function main(){
   const statusBox = document.getElementById("statusBox");
   const params = new URLSearchParams(location.search);
+  const linesParam = params.get("lines");
   const dataUrl = params.get("data") || "data/events.json";
-  renderCatalog(dataUrl);
+  renderLinePicker();
+  renderCatalog(linesParam ? null : dataUrl);
   let data;
   try {
-    const res = await fetch(dataUrl, {cache:"no-store"});
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    data = await res.json();
+    if (linesParam){
+      data = await buildCustomComboData(linesParam.split(",").filter(Boolean));
+      if (!data) throw new Error("網址裡的 lines 參數沒有對到任何已知的線");
+    } else {
+      const res = await fetch(dataUrl, {cache:"no-store"});
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    }
   } catch(e){
-    statusBox.innerHTML = `<div class="status err">讀取 ${dataUrl} 失敗：${e.message}。
+    statusBox.innerHTML = `<div class="status err">讀取${linesParam ? `自訂組合 lines=${linesParam}` : ` ${dataUrl}`} 失敗：${e.message}。
       若你是用 file:// 直接打開這個檔案，瀏覽器會擋 fetch——請在專案目錄下跑
       <code>python -m http.server</code> 再用 http://localhost:8000/index.html 開。</div>`;
     return;
   }
 
-  statusBox.innerHTML = `<div class="status ok">讀取自 ${dataUrl}，產生於 ${data.generated_at}，涵蓋 ${data.dates[0]} ~ ${data.dates[data.dates.length-1]}</div>`;
+  const sourceLabel = linesParam ? `自訂組合（lines=${linesParam}，瀏覽器端即時合併）` : dataUrl;
+  statusBox.innerHTML = `<div class="status ok">讀取自 ${sourceLabel}，產生於 ${data.generated_at}，涵蓋 ${data.dates[0]} ~ ${data.dates[data.dates.length-1]}</div>`;
   document.getElementById("subtitle").textContent =
     `${data.dates[0]} – ${data.dates[data.dates.length-1]}　│　真實資料，來源標於各列。此為互動示意，資料範圍受各 API 現況限制。`;
 

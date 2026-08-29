@@ -68,7 +68,7 @@
 
 **Phase 2 驗收標準**：
 - [x] **2026-08-29**：議題目錄頁已上線（`scripts/build_catalog.py` 產出 `data/catalog.json`，`index.html` 的 `renderCatalog()` 讀取後畫卡片，取代原本三個純文字連結）。每張卡片顯示主題名稱、追蹤中議案數、日期範圍、分類分佈快照、最後更新時間。**但「選線判准說明」目前只連回本 repo 的 `spec/multi_line_rollout.md`**，不是下面第 2 項要求的獨立公開文件——那份文件還沒寫、也還沒投給社群，卡片上誠實註明了這點，沒有假裝已經完成。已接進 `refresh_data.py`，每日重跑不會跟 `events.json` 脫鉤。
-- [ ] URL 參數完整編碼目前顯示的線組合（`?lines=food-safety,military-budget` 這種任意組合）——**尚未做**。目前架構是靠 `build_data.py` 在 build time 把固定組合預先合併成三份靜態 `events*.json`，`?data=` 只能三選一，不是任意勾選 2～3 條線再即時合併。要做到任意組合需要前端在 runtime 重現 `build_legislative_row()` 的合併邏輯（改吃每條線各自的原始節點檔，不是預先合併好的 `events*.json`），工程量比目錄頁大一截，這次沒有一併做。
+- [x] **2026-08-29**：URL 參數任意組合多線已完成。`data/lines.json` 新增一份「原始（未合併）線清單」註冊表，`index.html` 在 `?lines=id1,id2` 存在時，改成瀏覽器端 fetch 每條線各自的原始檔（`data/demo_line.json`／`data/military_budget_meeting.json`），即時跑 `build_bill_nodes_by_date` / `build_meeting_nodes_by_date` / `build_legislative_row` 三個函式的 JS 版本（`index.html` 裡同名函式，跟 `build_data.py` 對應函式邏輯一致，兩邊要同步維護），合併出立法列，日期範圍取所有選中線節點日期的聯集。已用 `events_multi_demo.json`（Python 產出的既有兩線合併結果）逐日逐節點內容比對驗證過完全一致。**範圍限制**：只有立法列支援即時合併；行政／搜尋次數／媒體報導三列跟「選了哪幾條線」無關（是特定一週的公報／維基百科資料），自訂組合模式下這三列固定顯示 gap 並註明原因，不是遺漏。目錄頁旁新增了勾選 UI（最多 3 條，超過自動鎖住其餘選項），勾選後直接導向帶 `?lines=` 的網址。
 - [ ] 白話／專業雙模式切換存在且記憶使用者上次選擇——**尚未實作**。`spec/reading_mode_onboarding.md` 已起草機制設計，但預設模式（第 4 節）跟對話文案的法律用語審閱（第 5 節）都還沒拍板，貿然刻文案風險最高的部分不該由工程單方面決定，見該文件。
 
 ## 6. Phase 3：獨立議題泳道（視 Phase 1 驗證結果決定，不預先承諾）

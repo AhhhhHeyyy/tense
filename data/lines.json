@@ -1,0 +1,19 @@
+{
+  "lines": [
+    {
+      "id": "food-safety",
+      "line_id": "202110228820000",
+      "line_name": "食品安全衛生管理法修法（demo線）",
+      "kind": "bill",
+      "raw_path": "data/demo_line.json"
+    },
+    {
+      "id": "military-budget",
+      "line_id": "聯席會議-11-5-20,35-1",
+      "line_name": "軍購特別預算線",
+      "kind": "meeting",
+      "raw_path": "data/military_budget_meeting.json",
+      "meeting_anchor": "2026-05-08"
+    }
+  ]
+}

@@ -90,11 +90,20 @@ def main():
     # 議題目錄頁（spec/multi_line_rollout.md Phase 2）讀 data/catalog.json，
     # 每天都要重跑一次，不然「這週即時資料」那筆的日期範圍/更新時間會跟
     # events.json 本身脫鉤，變成目錄頁顯示的是過期摘要。
+    #
+    # 注意：這裡的 --entry PATH 一定要傳「相對路徑字串」，不能傳 DATA / "..."
+    # 這種用 Path 組出來的值——Python 3.9 起 __file__ 一律是絕對路徑，
+    # DATA 這個 Path 物件因此也是絕對路徑，一旦拿去當 --entry 的 PATH 參數，
+    # build_catalog.py 會把它原封不動存進 catalog.json 的 data_path 欄位，
+    # 前端會直接拿這個值當 fetch URL／連結——在本機是你電腦上的絕對路徑，
+    # 在 GitHub Actions runner 上就是 /home/runner/... 這種跑者機器上的路徑，
+    # 兩邊都不是網站上真的存在的網址，會讓目錄卡連結全部 404。這裡只能是
+    # 「相對於網站根目錄」的字串，跟 DATA 變數本身是不是絕對路徑無關。
     run([sys.executable, SCRIPTS / "build_catalog.py",
-         "--entry", DATA / "events.json", "這週即時資料", "auto",
-         "--entry", DATA / "events_military_budget.json",
+         "--entry", "data/events.json", "這週即時資料", "auto",
+         "--entry", "data/events_military_budget.json",
          "軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）", "static",
-         "--entry", DATA / "events_multi_demo.json",
+         "--entry", "data/events_multi_demo.json",
          "兩線同框比較（食安修法線＋軍購特別預算線，2026/05/25–08/21）", "static",
          "--out", DATA / "catalog.json"])
 

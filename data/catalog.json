@@ -2,7 +2,7 @@
   "entries": [
     {
       "label": "這週即時資料",
-      "data_path": "/home/runner/work/tense/tense/data/events.json",
+      "data_path": "data/events.json",
       "bill_count": 0,
       "has_meeting": false,
       "date_start": "2026-08-25",
@@ -16,7 +16,7 @@
     },
     {
       "label": "軍購特別預算案聯席會議（2026/05/25–29，真實歷史資料）",
-      "data_path": "/home/runner/work/tense/tense/data/events_military_budget.json",
+      "data_path": "data/events_military_budget.json",
       "bill_count": 0,
       "has_meeting": true,
       "date_start": "2026-05-25",
@@ -30,7 +30,7 @@
     },
     {
       "label": "兩線同框比較（食安修法線＋軍購特別預算線，2026/05/25–08/21）",
-      "data_path": "/home/runner/work/tense/tense/data/events_multi_demo.json",
+      "data_path": "data/events_multi_demo.json",
       "bill_count": 11,
       "has_meeting": true,
       "date_start": "2026-05-25",

@@ -426,10 +426,17 @@ function renderLegislativeGroups(nodes){
 
 function renderAdminRecord(rec){
   const link = rec.url ? `<div class="src">→ <a href="${rec.url}" target="_blank" rel="noopener">${rec.gazette_id || "原文"}</a></div>` : "";
+  const geminiPrompt = `請幫我查證以下台灣行政院公報公告的最新進度與相關資訊，並註明你查到的資料來源：
+
+標題：${rec.title}
+類別：${rec.category}
+主辦機關：${rec.undertake_agency || rec.agency}
+官方資料來源：${rec.url || "（此則公報紀錄未附連結）"}`;
   return `<div class="node">
     <div class="ttl">${rec.title}</div>
     <div class="meta">${dot(catColor(ADMIN_CATEGORY_ORDER, rec.category))}${rec.category} · ${rec.undertake_agency || rec.agency}</div>
     ${link}
+    ${geminiButtonHtml(geminiPrompt)}
   </div>`;
 }
 

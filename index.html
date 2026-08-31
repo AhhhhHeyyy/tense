@@ -333,12 +333,7 @@ function renderLegislativeNode(node){
   if (node.cosigners && node.cosigners.length) classifyBits.push(`連署 <b>${node.cosigners.length}</b> 人`);
   classifyBits.push(`<span class="tag" title="依狀態文字關鍵字判斷，非官方欄位，僅供粗略篩選參考">${dot(progress.color)}${progress.label} ⚠</span>`);
   const classifyMeta = `<div class="meta">${classifyBits.join(" · ")}</div>`;
-  const geminiPrompt = `請幫我查證以下台灣立法院議案的最新進度與相關資訊，並註明你查到的資料來源：
-
-議案名稱：${node.bill_title}
-議案編號：${node.bill_no}
-目前進度：${node.status}
-官方資料來源：${node.bill_url}`;
+  const geminiPrompt = node.bill_title;
   const glossHits = matchGlossaryTerms(node.status, node.bill_type, node.proposal_source);
   return `<div class="node${glossHits.length ? " has-gloss" : ""}" id="ln-node-${node.node_index}">
     ${glossButtonHtml(glossHits)}
@@ -381,12 +376,7 @@ function renderMeetingNode(node){
   const attachmentLines = node.attachments.map(a =>
     `<div class="src">→ <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a></div>`
   ).join("");
-  const geminiPrompt = `請幫我查證以下台灣立法院委員會聯席會議的相關資訊，並註明你查到的資料來源：
-
-會議名稱：${node.meeting_title}
-審查委員會：${node.committees.join("、")}
-議程：${node.agenda}
-官方資料來源：${node.ppg_url}`;
+  const geminiPrompt = node.meeting_title;
   const glossHits = matchGlossaryTerms(node.meeting_title);
   return `<div class="node${glossHits.length ? " has-gloss" : ""}">
     ${glossButtonHtml(glossHits)}
@@ -426,12 +416,7 @@ function renderLegislativeGroups(nodes){
 
 function renderAdminRecord(rec){
   const link = rec.url ? `<div class="src">→ <a href="${rec.url}" target="_blank" rel="noopener">${rec.gazette_id || "原文"}</a></div>` : "";
-  const geminiPrompt = `請幫我查證以下台灣行政院公報公告的最新進度與相關資訊，並註明你查到的資料來源：
-
-標題：${rec.title}
-類別：${rec.category}
-主辦機關：${rec.undertake_agency || rec.agency}
-官方資料來源：${rec.url || "（此則公報紀錄未附連結）"}`;
+  const geminiPrompt = rec.title;
   return `<div class="node">
     <div class="ttl">${rec.title}</div>
     <div class="meta">${dot(catColor(ADMIN_CATEGORY_ORDER, rec.category))}${rec.category} · ${rec.undertake_agency || rec.agency}</div>

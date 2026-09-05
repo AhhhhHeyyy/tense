@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T00:49:40",
+  "generated_at": "2026-09-05T00:39:20",
   "dates": [
     "2026-08-31",
     "2026-09-01",
@@ -61,8 +61,21 @@
           "note": "公報 API 只提供當日資料，非今日區間標為缺口"
         },
         "2026-09-04": {
-          "state": "gap",
-          "note": "公報 API 只提供當日資料，非今日區間標為缺口"
+          "state": "hit",
+          "records": [
+            {
+              "meta_id": "168098",
+              "gazette_id": "",
+              "title": "行政院第4018次會議院長提示暨院會決定決議事項",
+              "agency": "行政院",
+              "undertake_agency": "國家發展委員會",
+              "category": "專載",
+              "chapter": "附錄",
+              "date_published_roc": "中華民國115年9月4日",
+              "date_published": "2026-09-04",
+              "url": ""
+            }
+          ]
         }
       }
     },
@@ -111,8 +124,9 @@
           "views": 298
         },
         "2026-09-03": {
-          "state": "gap",
-          "note": "維基百科瀏覽量有處理延遲，這天資料還沒生成"
+          "state": "hit",
+          "article": "立法院",
+          "views": 289
         },
         "2026-09-04": {
           "state": "gap",

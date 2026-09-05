@@ -8,7 +8,7 @@
       "date_start": "2026-08-31",
       "date_end": "2026-09-04",
       "category_snapshot": "（此區間無節點）",
-      "generated_at": "2026-09-04T00:49:40",
+      "generated_at": "2026-09-05T00:39:20",
       "selection_rationale_note": "選線判准目前記錄於 spec/multi_line_rollout.md（Phase 2 規劃要求另外整理成獨立公開文件，投給開放國會社群，尚未完成）",
       "selection_rationale_path": "spec/multi_line_rollout.md",
       "is_static": false,
